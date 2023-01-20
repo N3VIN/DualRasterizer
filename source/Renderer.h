@@ -29,6 +29,11 @@ namespace dae
 			m_DepthBufferVisualized = !m_DepthBufferVisualized;
 		}
 
+		void SwitchRenderMode()
+		{
+			m_ToggleRenderModeSoftware = !m_ToggleRenderModeSoftware;
+		}
+
 	private:
 
 		enum class Culling
@@ -63,6 +68,7 @@ namespace dae
 		Texture* m_pDiffuseFire;
 
 		bool m_DepthBufferVisualized{ false };
+		bool m_ToggleRenderModeSoftware{ false };
 
 
 

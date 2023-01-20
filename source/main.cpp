@@ -58,6 +58,9 @@ int main(int argc, char* args[])
 			case SDL_KEYUP:
 				switch (e.key.keysym.sym)
 				{
+				case SDLK_F1:
+					pRenderer->SwitchRenderMode();
+					break;
 				case SDLK_F2:
 					pRenderer->CycleFilteringMode();
 					break;

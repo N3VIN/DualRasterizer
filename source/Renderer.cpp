@@ -40,31 +40,9 @@ namespace dae {
 		// Initialize Camera.
 		m_Camera.Initialize(45.f, { 0.0f, 0.0f, -50.f }, m_AspectRatio);
 
-		std::vector<Vertex_In> vertices
-		{
-			/*{{0.0f, 3.0f , 2.0f}, {1.f, 0.f, 0.f}},
-			{{3.0f, -3.0f , 2.0f}, {0.f, 0.f, 1.f}},
-			{{-3.0f, -3.0f , 2.0f}, {0.f, 1.f, 0.f}},*/
+		std::vector<Vertex_In> vertices {};
 
-			/*{{-3, 3, -2}, { }, {0, 0}},
-			{{0, 3, -2}, { }, Vector2{0.5, 0}},
-			{{3, 3, -2}, { }, Vector2{1, 0}},
-			{{-3, 0, -2}, { }, Vector2{0, 0.5}},
-			{{0, 0, -2}, { }, Vector2{0.5, 0.5}},
-			{{3, 0, -2}, { }, Vector2{1, 0.5}},
-			{{-3, -3, -2}, { }, Vector2{0, 1}},
-			{{0, -3, -2}, { }, Vector2{0.5, 1}},
-			{{3, -3, -2}, { }, Vector2{1, 1}},*/
-		};
-
-		//const std::vector<uint32_t> indices{ 0, 1, 2 };
-
-		std::vector<uint32_t> indices
-		{
-			/*3, 0, 1,	1, 4, 3,	4, 1, 2,
-			2, 5, 4,	6, 3, 4,	4, 7, 6,
-			7, 4, 5,	5, 8, 7*/
-		};
+		std::vector<uint32_t> indices {};
 
 		VehicleEffect* pVehicleEffect = new VehicleEffect{ m_pDevice, L"Resources/PosCol3D.fx" };
 		Utils::ParseOBJ("Resources/vehicle.obj", vertices, indices);
@@ -179,13 +157,23 @@ namespace dae {
 		m_Camera.Update(pTimer);
 		m_pVehicleMesh->Update(m_Camera, pTimer);
 		m_pFireMesh->Update(m_Camera, pTimer);
+
+		//std::cout << m_Camera.origin.z << std::endl;
 	}
 
 
 	void Renderer::Render() const
 	{
+		if (m_ToggleRenderModeSoftware)
+		{
+			RenderSoftware();
+		}
+		else
+		{
+			RenderHardware();
+		}
 		//RenderHardware();
-		RenderSoftware();
+		//RenderSoftware();
 	}
 
 	void Renderer::RenderHardware() const
@@ -220,6 +208,7 @@ namespace dae {
 
 
 		// Main Mesh vector.
+		m_pVehicleMesh->m_VerticesOut.clear();
 		std::vector<Mesh*> meshes_world{};
 		meshes_world.push_back(m_pVehicleMesh);
 
