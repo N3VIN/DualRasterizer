@@ -26,6 +26,9 @@ namespace dae
 		static Vector3 Reject(const Vector3& v1, const Vector3& v2);
 		static Vector3 Reflect(const Vector3& v1, const Vector3& v2);
 
+		static Vector3 Max(const Vector3& v1, const Vector3& v2);
+		static Vector3 Min(const Vector3& v1, const Vector3& v2);
+
 		Vector4 ToPoint4() const;
 		Vector4 ToVector4() const;
 

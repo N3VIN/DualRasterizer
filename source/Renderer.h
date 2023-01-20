@@ -24,6 +24,10 @@ namespace dae
 		void CycleFilteringMode() const;
 		void CycleCullMode();
 
+		void VisualizeDepthBuffer()
+		{
+			m_DepthBufferVisualized = !m_DepthBufferVisualized;
+		}
 
 	private:
 
@@ -44,6 +48,12 @@ namespace dae
 		Camera m_Camera{};
 		float m_AspectRatio{};
 
+		SDL_Surface* m_pFrontBuffer{ nullptr };
+		SDL_Surface* m_pBackBuffer{ nullptr };
+		uint32_t* m_pBackBufferPixels{};
+
+		float* m_pDepthBufferPixels{};
+
 		Culling m_CurrentCullingMode{ Culling::None };
 
 		Texture* m_pDiffuseVehicle;
@@ -52,8 +62,12 @@ namespace dae
 		Texture* m_pSpecularVehicle;
 		Texture* m_pDiffuseFire;
 
+		bool m_DepthBufferVisualized{ false };
+
+
 
 		void RenderHardware() const;
+		void RenderSoftware() const;
 
 		//DIRECTX Variables
 		ID3D11Device* m_pDevice;
@@ -71,6 +85,21 @@ namespace dae
 
 		//DIRECTX Functions
 		HRESULT InitializeDirectX();
-		//...
+
+		// Software Functions
+		void VertexTransformationFunction(std::vector<Mesh*>& mesh) const; //W1 Version
+		void PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, ColorRGB color) const;
+		float ZBufferValue(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;
+		float WInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;
+		Vector2 UVInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
+		Vector3 NormalInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
+		Vector3 TangentInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
+		Vector3 ViewDirInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
+		float Remap(float value, float oldRangeL, float oldRangeN, float newRangeL, float newRangeN) const;
+		ColorRGB PixelShading(const Vertex_Out& v) const;
+		float GetLambertCosine(const dae::Vector3& normal, const dae::Vector3& lightDirection) const;
+
+
+
 	};
 }

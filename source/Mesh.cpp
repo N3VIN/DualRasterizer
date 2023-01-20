@@ -9,8 +9,14 @@ namespace dae
 		, Texture* gloss
 		, Texture* specular
 		, Effect* effect)
-	{
-		m_pEffect = effect;
+			: m_pEffect(effect)
+			, m_VerticesIn(vertex)
+			, m_Indices(index)
+		{
+		/*m_pEffect = effect;
+
+		m_Vertices = vertex;
+		m_Indices = index;*/
 
 		// Create Vertex Layout.
 		static constexpr uint32_t numElements{ 5 };
@@ -60,13 +66,13 @@ namespace dae
 		// Create Vertex Buffer.
 		D3D11_BUFFER_DESC bd = {};
 		bd.Usage = D3D11_USAGE_IMMUTABLE;
-		bd.ByteWidth = sizeof(Vertex_In) * static_cast<uint32_t>(vertex.size());
+		bd.ByteWidth = sizeof(Vertex_In) * static_cast<uint32_t>(m_VerticesIn.size());
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
 
 		D3D11_SUBRESOURCE_DATA initData = {};
-		initData.pSysMem = vertex.data();
+		initData.pSysMem = m_VerticesIn.data();
 
 		HRESULT resultVB = pDevice->CreateBuffer(&bd, &initData, &m_pVertexBuffer);
 		if (FAILED(resultVB))
@@ -75,14 +81,14 @@ namespace dae
 		}
 
 		// Create Index Buffer.
-		m_NumIndices = static_cast<uint32_t>(index.size());
+		m_NumIndices = static_cast<uint32_t>(m_Indices.size());
 		bd.Usage = D3D11_USAGE_IMMUTABLE;
 		bd.ByteWidth = sizeof(uint32_t) * m_NumIndices;
 		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.MiscFlags = 0;
 
-		initData.pSysMem = index.data();
+		initData.pSysMem = m_Indices.data();
 
 		HRESULT resultIB = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
 		if (FAILED(resultIB))
@@ -149,7 +155,7 @@ namespace dae
 
 	void Mesh::Update(const Camera& camera, const Timer* pTimer)
 	{
-		RotateY(90.0f * pTimer->GetElapsed());
+		//RotateY(90.0f * pTimer->GetElapsed());
 
 		const Matrix worldViewProjectionMat = m_WorldMatrix * camera.viewMatrix * camera.projectionMatrix;
 		m_pEffect->SetMatWorldViewProjVariable(worldViewProjectionMat);
@@ -162,11 +168,6 @@ namespace dae
 	void Mesh::CycleFilteringMode() const
 	{
 		m_pEffect->CycleFilteringMode();
-	}
-
-	void Mesh::CycleCullMode() const
-	{
-
 	}
 
 	void Mesh::RotateY(float angle)

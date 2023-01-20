@@ -25,7 +25,6 @@ namespace dae
 		void Render(ID3D11DeviceContext* pDeviceContext) const;
 		void Update(const Camera& camera, const Timer* pTimer);
 		void CycleFilteringMode() const;
-		void CycleCullMode() const;
 
 		void RotateY(float angle);
 		void RotateX(float angle);
@@ -33,15 +32,31 @@ namespace dae
 		void Translate(float x, float y, float z);
 		void Translate(const Vector3& v);
 
+		Matrix m_WorldMatrix;
+
+		// Software.
+		enum class PrimitiveTopology
+		{
+			TriangleList,
+			TriangleStrip
+		};
+
+		std::vector<Vertex_In> m_VerticesIn{};
+		std::vector<Vertex_Out> m_VerticesOut{};
+		std::vector<uint32_t> m_Indices{};
+		PrimitiveTopology m_PrimitiveTopology{ PrimitiveTopology::TriangleList };
+
 	private:
 
+		
+
+
+		// DX.
 		Effect* m_pEffect;
 		ID3D11InputLayout* m_pInputLayout;
 		ID3D11Buffer* m_pVertexBuffer;
 		ID3D11Buffer* m_pIndexBuffer;
 		uint32_t m_NumIndices;
-
-		Matrix m_WorldMatrix;
 
 	};
 }
