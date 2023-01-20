@@ -16,6 +16,8 @@ namespace dae {
 		//Initialize
 		SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
 
+		m_pSoftware = new Software{ pWindow, m_Width, m_Height };
+
 		//Initialize DirectX pipeline
 		const HRESULT result = InitializeDirectX();
 		if (result == S_OK)
@@ -28,12 +30,6 @@ namespace dae {
 			std::cout << "DirectX initialization failed!\n";
 		}
 
-		//Create Buffers software.
-		m_pFrontBuffer = SDL_GetWindowSurface(pWindow);
-		m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
-		m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
-
-		m_pDepthBufferPixels = new float[m_Width * m_Height];
 
 		m_AspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
@@ -70,6 +66,10 @@ namespace dae {
 			, nullptr
 			, nullptr
 			, pFireEffect };
+
+		m_pSoftware->SetMesh(m_pVehicleMesh);
+		m_pSoftware->SetTextures(m_pDiffuseVehicle, m_pNormalVehicle, m_pGlossVehicle, m_pSpecularVehicle);
+
 	}
 
 	Renderer::~Renderer()
@@ -126,9 +126,6 @@ namespace dae {
 			m_pFrontRasterizerState->Release();
 		}
 
-		delete[] m_pDepthBufferPixels;
-		m_pDepthBufferPixels = nullptr;
-
 		delete m_pVehicleMesh;
 		m_pVehicleMesh = nullptr;
 
@@ -150,6 +147,9 @@ namespace dae {
 		delete m_pDiffuseFire;
 		m_pDiffuseFire = nullptr;
 
+		delete m_pSoftware;
+		m_pSoftware = nullptr;
+
 	}
 
 	void Renderer::Update(const Timer* pTimer)
@@ -166,7 +166,7 @@ namespace dae {
 	{
 		if (m_ToggleRenderModeSoftware)
 		{
-			RenderSoftware();
+			m_pSoftware->Render(m_Camera);
 		}
 		else
 		{
@@ -197,330 +197,6 @@ namespace dae {
 
 		m_pSwapChain->Present(0, 0);
 
-	}
-
-	void Renderer::RenderSoftware() const
-	{
-
-		//@START
-		//Lock BackBuffer
-		SDL_LockSurface(m_pBackBuffer);
-
-
-		// Main Mesh vector.
-		m_pVehicleMesh->m_VerticesOut.clear();
-		std::vector<Mesh*> meshes_world{};
-		meshes_world.push_back(m_pVehicleMesh);
-
-
-		VertexTransformationFunction(meshes_world);
-
-		std::fill_n(m_pDepthBufferPixels, m_Width * m_Height, FLT_MAX);
-		SDL_FillRect(m_pBackBuffer, NULL, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
-
-		//RENDER LOGIC
-		ColorRGB finalColor{};
-		for (const auto& mesh : meshes_world)
-		{
-			if (mesh->m_PrimitiveTopology == Mesh::PrimitiveTopology::TriangleList)
-			{
-				for (size_t i = 0; i < mesh->m_Indices.size(); i += 3)
-				{
-					Vertex_Out v0{ mesh->m_VerticesOut[mesh->m_Indices[i]] };
-					Vertex_Out v1{ mesh->m_VerticesOut[mesh->m_Indices[i + 1]] };
-					Vertex_Out v2{ mesh->m_VerticesOut[mesh->m_Indices[i + 2]] };
-
-					// Clipping.
-					if (v0.position.x < -1 || v0.position.x > 1 ||
-						v0.position.y < -1 || v0.position.y > 1)
-					{
-						continue;
-					}
-
-					if (v1.position.x < -1 || v1.position.x > 1 ||
-						v1.position.y < -1 || v1.position.y > 1)
-					{
-						continue;
-					}
-
-					if (v2.position.x < -1 || v2.position.x > 1 ||
-						v2.position.y < -1 || v2.position.y > 1)
-					{
-						continue;
-					}
-
-					// NDC to raster.
-					v0.position.x = ((v0.position.x + 1) / 2) * m_Width;
-					v0.position.y = ((1 - v0.position.y) / 2) * m_Height;
-
-					v1.position.x = ((v1.position.x + 1) / 2) * m_Width;
-					v1.position.y = ((1 - v1.position.y) / 2) * m_Height;
-
-					v2.position.x = ((v2.position.x + 1) / 2) * m_Width;
-					v2.position.y = ((1 - v2.position.y) / 2) * m_Height;
-
-					PixelRenderLoop(v0, v1, v2, finalColor);
-				}
-			}
-			else if (mesh->m_PrimitiveTopology == Mesh::PrimitiveTopology::TriangleStrip)
-			{
-				for (size_t i = 0; i < mesh->m_Indices.size() - 2; i++)
-				{
-					uint32_t index1{ mesh->m_Indices[i] };
-					uint32_t index2{ mesh->m_Indices[i + 1] };
-					uint32_t index3{ mesh->m_Indices[i + 2] };
-
-					if (index3 % 2 == 1)
-					{
-						index2 = mesh->m_Indices[i + 2];
-						index3 = mesh->m_Indices[i + 1];
-					}
-
-					Vertex_Out v0{ mesh->m_VerticesOut[index1] };
-					Vertex_Out v1{ mesh->m_VerticesOut[index2] };
-					Vertex_Out v2{ mesh->m_VerticesOut[index3] };
-
-					PixelRenderLoop(v0, v1, v2, finalColor);
-				}
-			}
-		}
-		//@END
-		//Update SDL Surface
-		SDL_UnlockSurface(m_pBackBuffer);
-		SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
-		SDL_UpdateWindowSurface(m_pWindow);
-	}
-
-	void Renderer::VertexTransformationFunction(std::vector<Mesh*>& mesh) const
-	{
-		for (auto& m : mesh)
-		{
-			const auto worldViewProjectionMatrix{ m->m_WorldMatrix * m_Camera.viewMatrix * m_Camera.projectionMatrix };
-
-			for (const auto& vertices : m->m_VerticesIn)
-			{
-				// Projection.
-				Vector4 projectedVertex{ worldViewProjectionMatrix.TransformPoint(vertices.position.x, vertices.position.y, vertices.position.z, 1) };
-
-				// World space normal calculation.
-				Vector3 worldSpaceNormal{ m->m_WorldMatrix.TransformVector(vertices.normal).Normalized() };
-
-				// Tangent calculation.
-				Vector3 tangent{ m->m_WorldMatrix.TransformVector(vertices.tangent).Normalized() };
-
-				// View Direction Calculation.
-				//Vector3 viewDirection{ m.worldMatrix.TransformPoint(vertices.position) - m_Camera.origin };
-				Vector3 viewDirection{ m_Camera.origin - m->m_WorldMatrix.TransformPoint(vertices.position) };
-				//Vector3 viewDirection{ vertices.position };
-
-				// Perspective Divide.
-				projectedVertex.x /= projectedVertex.w;
-				projectedVertex.y /= projectedVertex.w;
-				projectedVertex.z /= projectedVertex.w;
-
-				//// Clipping.
-				//if ( projectedVertex.x < -1 || projectedVertex.x > 1 ||
-				//	 projectedVertex.y < -1 || projectedVertex.y > 1 )
-				//{
-				//	continue;
-				//}
-
-				//// NDC to screenspace.
-				//projectedVertex.x = ((projectedVertex.x + 1) / 2) * m_Width;
-				//projectedVertex.y = ((1 - projectedVertex.y) / 2) * m_Height;
-
-				//Vertex_Out temp{ projectedVertex, {vertices.color}, {vertices.uv}, {worldSpaceNormal}, {tangent}, {viewDirection} };
-				Vertex_Out temp{ projectedVertex, vertices.color, vertices.uv, worldSpaceNormal, tangent, viewDirection };
-				m->m_VerticesOut.emplace_back(temp);
-			}
-		}
-	}
-
-	void dae::Renderer::PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, ColorRGB color) const
-	{
-		// Bounding Box.
-		Vector3 min{}, max{};
-		min = Vector3::Min(v0.position, Vector3::Min(v1.position, v2.position));
-		max = Vector3::Max(v0.position, Vector3::Max(v1.position, v2.position));
-
-		Vector3 margin{ 1.f, 1.f, 1.f };
-		min -= margin;
-		max += margin;
-
-		min = Vector3::Max({ 0, 0, 0 }, Vector3::Min({ static_cast<float>(m_Width - 1), static_cast<float>(m_Height - 1), 0.f }, min));
-		max = Vector3::Max({ 0, 0, 0 }, Vector3::Min({ static_cast<float>(m_Width - 1), static_cast<float>(m_Height - 1), 0.f }, max));
-
-		for (int px{ static_cast<int>(min.x) }; px < static_cast<int>(max.x); ++px)
-		{
-			for (int py{ static_cast<int>(min.y) }; py < static_cast<int>(max.y); ++py)
-			{
-				Vector2 pixel{ static_cast<float>(px), static_cast<float>(py) };
-
-				//edges
-				const Vector2 v0v1{ v1.position.GetXY() - v0.position.GetXY() };
-				const Vector2 v1v2{ v2.position.GetXY() - v1.position.GetXY() };
-				const Vector2 v2v0{ v0.position.GetXY() - v2.position.GetXY() };
-
-				const Vector2 v0v2{ v2.position.GetXY() - v0.position.GetXY() };
-
-				// Vector from vertex to pixel.
-				Vector2 vertexToPixel1{ pixel - v0.position.GetXY() };
-				Vector2 vertexToPixel2{ pixel - v1.position.GetXY() };
-				Vector2 vertexToPixel3{ pixel - v2.position.GetXY() };
-
-				//Cross of vertex to pixel and vertex
-				float signedArea1{ Vector2::Cross(v0v1, vertexToPixel1) };
-				float signedArea2{ Vector2::Cross(v1v2, vertexToPixel2) };
-				float signedArea3{ Vector2::Cross(v2v0, vertexToPixel3) };
-
-				// Pixel inside triangle.
-				if (signedArea1 > 0 && signedArea2 > 0 && signedArea3 > 0)
-				{
-					float areaTotalParallelogram{ Vector2::Cross(v0v1, v0v2) };
-
-					float W0{ signedArea2 / areaTotalParallelogram };
-					float W1{ signedArea3 / areaTotalParallelogram };
-					float W2{ signedArea1 / areaTotalParallelogram };
-
-					//Vector3 pixelPosition{ (v0.position * W0) + (v1.position * W1) + (v2.position * W2) };
-
-					float zBufferValue{ ZBufferValue(v0, v1, v2, W0, W1, W2) };
-
-					float depth = m_pDepthBufferPixels[py * m_Width + px];
-					//if (pixelPosition.z < depth)
-					if (zBufferValue < depth)
-					{
-						m_pDepthBufferPixels[py * m_Width + px] = zBufferValue;
-						//Vector2 uv = { (v0.uv * W0) + (v1.uv * W1) + (v2.uv * W2) };
-						float wInterpolated{ WInterpolated(v0, v1, v2, W0, W1, W2) };
-						Vector2 uv{ UVInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated) };
-						Vector3 normal{ NormalInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
-						Vector3 tangent{ TangentInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
-						Vector3 viewDirection{ ViewDirInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
-
-						ColorRGB finalColor{};
-
-						if (!m_DepthBufferVisualized)
-						{
-							//finalColor = m_pTexture->Sample(uv);
-
-							const Vector4 pixel{ static_cast<float>(px), static_cast<float>(py), zBufferValue, wInterpolated };
-
-							Vertex_Out pixelVertex{ pixel, finalColor, uv, normal, tangent, viewDirection };
-
-							//finalColor += PixelShading(pixelVertex);
-							finalColor = PixelShading(pixelVertex);
-						}
-						else
-						{
-							finalColor = ColorRGB{ 1, 1, 1 } *Remap(zBufferValue, 0.985f, 1.f, 0.f, 1.f);
-						}
-
-						color = finalColor;
-
-						//Update Color in Buffer
-						color.MaxToOne();
-
-						m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-							static_cast<uint8_t>(color.r * 255),
-							static_cast<uint8_t>(color.g * 255),
-							static_cast<uint8_t>(color.b * 255));
-					}
-				}
-			}
-		}
-	}
-
-	float dae::Renderer::ZBufferValue(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const
-	{
-		float denominator = (1.0f / v0.position.z) * w0 + (1.0f / v1.position.z) * w1 + (1.0f / v2.position.z) * w2;
-		return (1 / denominator);
-	}
-
-	float dae::Renderer::WInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const
-	{
-		float denominator = (1.0f / v0.position.w) * w0 + (1.0f / v1.position.w) * w1 + (1.0f / v2.position.w) * w2;
-		return (1 / denominator);
-	}
-
-	Vector2 dae::Renderer::UVInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const
-	{
-		return ((v0.uv / v0.position.w) * w0 + (v1.uv / v1.position.w) * w1 + (v2.uv / v2.position.w) * w2) * wInterpolated;
-	}
-
-	Vector3 dae::Renderer::NormalInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const
-	{
-		return ((v0.normal / v0.position.w) * w0 + (v1.normal / v1.position.w) * w1 + (v2.normal / v2.position.w) * w2) * wInterpolated;
-	}
-
-	Vector3 dae::Renderer::TangentInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const
-	{
-		return ((v0.tangent / v0.position.w) * w0 + (v1.tangent / v1.position.w) * w1 + (v2.tangent / v2.position.w) * w2) * wInterpolated;
-	}
-
-	Vector3 dae::Renderer::ViewDirInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const
-	{
-		return ((v0.viewDirection / v0.position.w) * w0 + (v1.viewDirection / v1.position.w) * w1 + (v2.viewDirection / v2.position.w) * w2) * wInterpolated;
-	}
-
-	float dae::Renderer::Remap(float value, float oldRangeL, float oldRangeN, float newRangeL, float newRangeN) const
-	{
-		float newVal{ std::clamp(value, oldRangeL, oldRangeN) };
-		return newRangeL + (newVal - oldRangeL) * (newRangeN - newRangeL) / (newRangeN - oldRangeL);
-	}
-
-	ColorRGB dae::Renderer::PixelShading(const Vertex_Out& v) const
-	{
-		Vector3 lightDirection{ 0.577f, -0.577f, 0.577f };
-		float lightIntensity{ 7.0f };
-		const ColorRGB ambient{ 0.025f, 0.025f, 0.025f };
-
-		//// Calculate Binormal.
-		Vector3 binormal{ Vector3::Cross(v.normal, v.tangent).Normalized() };
-
-		//// Calculate Tangent space Matrix.
-		Matrix tangentSpaceMatrix{ v.tangent, binormal, v.normal, Vector3::Zero };
-
-		//// Calculate Normal according to the Normal Map.
-		ColorRGB normalMapCol{ (2 * m_pNormalVehicle->Sample(v.uv)) - colors::White };
-		//ColorRGB normalMapCol{ ( m_pNormalMap->Sample(v.uv)) };
-		Vector3 normalMapVector{ normalMapCol.r, normalMapCol.g, normalMapCol.b };
-		//Vector3 normalMapVector{ (normalMapCol.r * 2.0f) - 1.0f, (normalMapCol.g * 2.0f) - 1.0f, (normalMapCol.b * 2.0f) - 1.0f };
-		normalMapVector /= 255.f;
-		Vector3 tangentSpaceVector = tangentSpaceMatrix.TransformVector(normalMapVector).Normalized();
-		//v.normal = tangentSpaceMatrix.TransformVector(normalMapVector).Normalized();
-
-		float lambertCosineLaw{ GetLambertCosine(tangentSpaceVector, lightDirection) };
-
-		if (lambertCosineLaw < 0.f)
-		{
-			return { 0,0,0 };
-		}
-
-		float specularShininess{ 25.f };
-		float specularExp{ specularShininess * m_pGlossVehicle->Sample(v.uv).r };
-		ColorRGB specular{ BRDF::Phong(m_pSpecularVehicle->Sample(v.uv), 1.f, specularExp, lightDirection, v.viewDirection, tangentSpaceVector) };
-
-		ColorRGB lambert{ BRDF::Lambert(1.0f, m_pDiffuseVehicle->Sample(v.uv)) };
-		//ColorRGB lambert{ BRDF::Lambert(1.0f, {0.5,0.5,0.5}) };
-
-
-
-		//return (lambert * lambertCosineLaw * lightIntensity); // lambert final.
-		//return specular; // specular final.
-		return ((lambert * lightIntensity) + specular) * lambertCosineLaw; // combined.
-
-		//return (lambert * lightIntensity) * lambertCosineLaw;
-		//return lambertCosineLaw * ((lightIntensity * lambert) + specular + ambient);
-		//return ColorRGB{1, 1, 1} * lambertCosineLaw;
-	}
-
-	float Renderer::GetLambertCosine(const dae::Vector3& normal, const dae::Vector3& lightDirection) const
-	{
-		float lambertCosine{};
-		//lambertCosine = std::max(Vector3::Dot(normal, -lightDirection.Normalized()), 0.0f);
-		lambertCosine = std::max(0.f, Vector3::Dot(normal, -lightDirection.Normalized()));
-		return lambertCosine;
 	}
 
 	void Renderer::CycleFilteringMode() const

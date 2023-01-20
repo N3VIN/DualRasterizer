@@ -1,12 +1,14 @@
 #pragma once
 #include "Mesh.h"
 #include "Camera.h"
+#include "Software.h"
 
 struct SDL_Window;
 struct SDL_Surface;
 
 namespace dae
 {
+	class Software;
 
 	class Renderer final
 	{
@@ -24,9 +26,16 @@ namespace dae
 		void CycleFilteringMode() const;
 		void CycleCullMode();
 
-		void VisualizeDepthBuffer()
+		void VisualizeDepthBuffer() const
 		{
-			m_DepthBufferVisualized = !m_DepthBufferVisualized;
+			if (m_ToggleRenderModeSoftware)
+			{
+				m_pSoftware->VisualizeDepthBuffer();
+			}
+			else
+			{
+				std::cout << "Depth Buffer Visualization not Supported in Hardware mode :(\n";
+			}
 		}
 
 		void SwitchRenderMode()
@@ -48,16 +57,12 @@ namespace dae
 
 		bool m_IsInitialized{ false };
 
+		Software* m_pSoftware;
+
 		Mesh* m_pVehicleMesh;
 		Mesh* m_pFireMesh;
 		Camera m_Camera{};
 		float m_AspectRatio{};
-
-		SDL_Surface* m_pFrontBuffer{ nullptr };
-		SDL_Surface* m_pBackBuffer{ nullptr };
-		uint32_t* m_pBackBufferPixels{};
-
-		float* m_pDepthBufferPixels{};
 
 		Culling m_CurrentCullingMode{ Culling::None };
 
@@ -67,13 +72,11 @@ namespace dae
 		Texture* m_pSpecularVehicle;
 		Texture* m_pDiffuseFire;
 
-		bool m_DepthBufferVisualized{ false };
 		bool m_ToggleRenderModeSoftware{ false };
 
 
 
 		void RenderHardware() const;
-		void RenderSoftware() const;
 
 		//DIRECTX Variables
 		ID3D11Device* m_pDevice;
