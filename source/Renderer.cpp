@@ -517,9 +517,9 @@ namespace dae {
 
 
 
-		return (lambert * lambertCosineLaw * lightIntensity); // lambert final.
+		//return (lambert * lambertCosineLaw * lightIntensity); // lambert final.
 		//return specular; // specular final.
-		//return ((lambert * lightIntensity) + specular) * lambertCosineLaw; // combined.
+		return ((lambert * lightIntensity) + specular) * lambertCosineLaw; // combined.
 
 		//return (lambert * lightIntensity) * lambertCosineLaw;
 		//return lambertCosineLaw * ((lightIntensity * lambert) + specular + ambient);

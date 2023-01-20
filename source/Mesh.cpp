@@ -155,7 +155,7 @@ namespace dae
 
 	void Mesh::Update(const Camera& camera, const Timer* pTimer)
 	{
-		//RotateY(90.0f * pTimer->GetElapsed());
+		RotateY(90.0f * pTimer->GetElapsed());
 
 		const Matrix worldViewProjectionMat = m_WorldMatrix * camera.viewMatrix * camera.projectionMatrix;
 		m_pEffect->SetMatWorldViewProjVariable(worldViewProjectionMat);
