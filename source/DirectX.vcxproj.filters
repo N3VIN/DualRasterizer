@@ -46,6 +46,7 @@
     <ClInclude Include="VehicleEffect.h" />
     <ClInclude Include="BRDFs.h" />
     <ClInclude Include="Software.h" />
+    <ClInclude Include="Hardware.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -72,6 +73,9 @@
     <ClCompile Include="VehicleEffect.cpp" />
     <ClCompile Include="FireEffect.cpp" />
     <ClCompile Include="Software.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware.cpp">
       <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>

@@ -161,4 +161,10 @@ namespace dae
 		}
 #pragma warning(pop)
 	}
+
+	enum class Culling
+	{
+		None, Back, Front
+	};
+
 }

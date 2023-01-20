@@ -1,15 +1,15 @@
 #pragma once
 #include "Mesh.h"
 #include "Camera.h"
+#include "Hardware.h"
 #include "Software.h"
+#include "Utils.h"
 
 struct SDL_Window;
 struct SDL_Surface;
 
 namespace dae
 {
-	class Software;
-
 	class Renderer final
 	{
 	public:
@@ -24,19 +24,9 @@ namespace dae
 		void Update(const Timer* pTimer);
 		void Render() const;
 		void CycleFilteringMode() const;
-		void CycleCullMode();
+		void CycleCullMode() const;
 
-		void VisualizeDepthBuffer() const
-		{
-			if (m_ToggleRenderModeSoftware)
-			{
-				m_pSoftware->VisualizeDepthBuffer();
-			}
-			else
-			{
-				std::cout << "Depth Buffer Visualization not Supported in Hardware mode :(\n";
-			}
-		}
+		void VisualizeDepthBuffer() const;
 
 		void SwitchRenderMode()
 		{
@@ -45,26 +35,13 @@ namespace dae
 
 	private:
 
-		enum class Culling
-		{
-			None, Back, Front
-		};
-
-		SDL_Window* m_pWindow{};
-
-		int m_Width{};
-		int m_Height{};
-
-		bool m_IsInitialized{ false };
-
 		Software* m_pSoftware;
+		Hardware* m_pHardware;
 
 		Mesh* m_pVehicleMesh;
 		Mesh* m_pFireMesh;
 		Camera m_Camera{};
 		float m_AspectRatio{};
-
-		Culling m_CurrentCullingMode{ Culling::None };
 
 		Texture* m_pDiffuseVehicle;
 		Texture* m_pNormalVehicle;
@@ -73,41 +50,6 @@ namespace dae
 		Texture* m_pDiffuseFire;
 
 		bool m_ToggleRenderModeSoftware{ false };
-
-
-
-		void RenderHardware() const;
-
-		//DIRECTX Variables
-		ID3D11Device* m_pDevice;
-		ID3D11DeviceContext* m_pDeviceContext;
-		IDXGISwapChain* m_pSwapChain;
-		ID3D11Texture2D* m_pDepthStencilBuffer;
-		ID3D11DepthStencilView* m_pDepthStencilView;
-		ID3D11Texture2D* m_pRenderTargetBuffer;
-		ID3D11RenderTargetView* m_pRenderTargetView;
-
-		ID3D11RasterizerState* m_pNoneRasterizerState;
-		ID3D11RasterizerState* m_pBackRasterizerState;
-		ID3D11RasterizerState* m_pFrontRasterizerState;
-
-
-		//DIRECTX Functions
-		HRESULT InitializeDirectX();
-
-		// Software Functions
-		void VertexTransformationFunction(std::vector<Mesh*>& mesh) const; //W1 Version
-		void PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, ColorRGB color) const;
-		float ZBufferValue(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;
-		float WInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;
-		Vector2 UVInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
-		Vector3 NormalInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
-		Vector3 TangentInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
-		Vector3 ViewDirInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;
-		float Remap(float value, float oldRangeL, float oldRangeN, float newRangeL, float newRangeN) const;
-		ColorRGB PixelShading(const Vertex_Out& v) const;
-		float GetLambertCosine(const dae::Vector3& normal, const dae::Vector3& lightDirection) const;
-
 
 
 	};
