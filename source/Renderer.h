@@ -3,7 +3,6 @@
 #include "Camera.h"
 #include "Hardware.h"
 #include "Software.h"
-#include "Utils.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -24,13 +23,25 @@ namespace dae
 		void Update(const Timer* pTimer);
 		void Render() const;
 		void CycleFilteringMode() const;
-		void CycleCullMode() const;
-
 		void VisualizeDepthBuffer() const;
+		void CycleShadingMode() const;
+		void ToggleNormalMap() const;
 
 		void SwitchRenderMode()
 		{
 			m_ToggleRenderModeSoftware = !m_ToggleRenderModeSoftware;
+			std::cout << (m_ToggleRenderModeSoftware ? "Render Mode: Software.\n" : "Render Mode: Hardware.\n");
+		}
+		void ToggleFireMesh() const;
+
+		void CycleCullMode() const
+		{
+			m_pHardware->CycleCullMode();
+		}
+		void ToggleRotation() const
+		{
+			m_pVehicleMesh->ToggleRotation();
+			m_pFireMesh->ToggleRotation();
 		}
 
 	private:

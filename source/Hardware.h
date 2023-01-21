@@ -30,6 +30,11 @@ namespace dae
 		{
 			return m_pDevice;
 		}
+		void ToggleFireMesh()
+		{
+			m_ToggleFireMesh = !m_ToggleFireMesh;
+			std::cout << (m_ToggleFireMesh ? "Toggle Fire Mesh ON.\n" : "Toggle Fire Mesh OFF.\n");
+		}
 
 	private:
 
@@ -44,6 +49,8 @@ namespace dae
 		Mesh* m_pFireMesh;
 
 		Culling m_CurrentCullingMode{ Culling::None };
+
+		bool m_ToggleFireMesh{ true };
 
 
 		//DIRECTX Variables

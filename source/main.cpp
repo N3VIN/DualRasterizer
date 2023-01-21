@@ -61,11 +61,23 @@ int main(int argc, char* args[])
 				case SDLK_F1:
 					pRenderer->SwitchRenderMode();
 					break;
+				case SDLK_F2:
+					pRenderer->ToggleRotation();
+					break;
+				case SDLK_F3:
+					pRenderer->ToggleFireMesh();
+					break;
+				case SDLK_F4:
+					pRenderer->CycleFilteringMode();
+					break;
+				case SDLK_F5:
+					pRenderer->CycleShadingMode();
+					break;
+				case SDLK_F6:
+					pRenderer->ToggleNormalMap();
+					break;
 				case SDLK_F7:
 					pRenderer->VisualizeDepthBuffer();
-					break;
-				case SDLK_F2:
-					pRenderer->CycleFilteringMode();
 					break;
 				case SDLK_F9:
 					pRenderer->CycleCullMode();

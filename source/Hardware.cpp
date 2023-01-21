@@ -98,7 +98,11 @@ namespace dae
 		//...
 
 		m_pVehicleMesh->Render(m_pDeviceContext);
-		m_pFireMesh->Render(m_pDeviceContext);
+
+		if (m_ToggleFireMesh)
+		{
+			m_pFireMesh->Render(m_pDeviceContext);
+		}
 
 		// Present Backbuffer (swap)
 

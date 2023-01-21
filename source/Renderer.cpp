@@ -10,7 +10,6 @@
 
 namespace dae
 {
-
 	Renderer::Renderer(SDL_Window* pWindow)
 	{
 		//Initialize
@@ -101,7 +100,6 @@ namespace dae
 		m_pVehicleMesh->Update(m_Camera, pTimer);
 		m_pFireMesh->Update(m_Camera, pTimer);
 
-		//std::cout << m_Camera.origin.z << std::endl;
 	}
 
 
@@ -129,10 +127,7 @@ namespace dae
 		}
 	}
 
-	void Renderer::CycleCullMode() const
-	{
-		m_pHardware->CycleCullMode();
-	}
+	
 
 	void Renderer::VisualizeDepthBuffer() const
 	{
@@ -143,6 +138,42 @@ namespace dae
 		else
 		{
 			std::cout << "Depth Buffer Visualization not Supported in Hardware mode :(\n";
+		}
+	}
+
+	void Renderer::CycleShadingMode() const
+	{
+		if (m_ToggleRenderModeSoftware)
+		{
+			m_pSoftware->CycleShadingMode();
+		}
+		else
+		{
+			std::cout << "Cycle Shading Modes not Supported in Hardware mode :(\n";
+		}
+	}
+
+	void Renderer::ToggleNormalMap() const
+	{
+		if (m_ToggleRenderModeSoftware)
+		{
+			m_pSoftware->ToggleNormalMap();
+		}
+		else
+		{
+			std::cout << "Toggle Normal Map not Supported in Hardware mode :(\n";
+		}
+	}
+
+	void Renderer::ToggleFireMesh() const
+	{
+		if (m_ToggleRenderModeSoftware)
+		{
+			std::cout << "Toggle Fire Mesh not Supported in Software mode :(\n";
+		}
+		else
+		{
+			m_pHardware->ToggleFireMesh();
 		}
 	}
 }

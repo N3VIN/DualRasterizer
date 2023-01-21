@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Software.h"
 
+#include <array>
+
 #include "BRDFs.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -15,7 +17,7 @@ namespace dae
 		//Create Buffers software.
 		m_pFrontBuffer = SDL_GetWindowSurface(pWindow);
 		m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
-		m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
+		m_pBackBufferPixels = static_cast<uint32_t*>(m_pBackBuffer->pixels);
 
 		m_pDepthBufferPixels = new float[m_Width * m_Height];
 
@@ -303,20 +305,22 @@ namespace dae
 		float lightIntensity{ 7.0f };
 		const ColorRGB ambient{ 0.025f, 0.025f, 0.025f };
 
-		//// Calculate Binormal.
-		Vector3 binormal{ Vector3::Cross(v.normal, v.tangent).Normalized() };
+		Vector3 tangentSpaceVector = v.normal;
 
-		//// Calculate Tangent space Matrix.
-		Matrix tangentSpaceMatrix{ v.tangent, binormal, v.normal, Vector3::Zero };
+		if (m_ToggleNormalMap)
+		{
+			//// Calculate Binormal.
+			Vector3 binormal{ Vector3::Cross(v.normal, v.tangent).Normalized() };
 
-		//// Calculate Normal according to the Normal Map.
-		ColorRGB normalMapCol{ (2 * m_pNormalVehicle->Sample(v.uv)) - colors::White };
-		//ColorRGB normalMapCol{ ( m_pNormalMap->Sample(v.uv)) };
-		Vector3 normalMapVector{ normalMapCol.r, normalMapCol.g, normalMapCol.b };
-		//Vector3 normalMapVector{ (normalMapCol.r * 2.0f) - 1.0f, (normalMapCol.g * 2.0f) - 1.0f, (normalMapCol.b * 2.0f) - 1.0f };
-		normalMapVector /= 255.f;
-		Vector3 tangentSpaceVector = tangentSpaceMatrix.TransformVector(normalMapVector).Normalized();
-		//v.normal = tangentSpaceMatrix.TransformVector(normalMapVector).Normalized();
+			//// Calculate Tangent space Matrix.
+			Matrix tangentSpaceMatrix{ v.tangent, binormal, v.normal, Vector3::Zero };
+
+			//// Calculate Normal according to the Normal Map.
+			ColorRGB normalMapCol{ (2 * m_pNormalVehicle->Sample(v.uv)) - colors::White };
+			Vector3 normalMapVector{ normalMapCol.r, normalMapCol.g, normalMapCol.b };
+			normalMapVector /= 255.f;
+			tangentSpaceVector = tangentSpaceMatrix.TransformVector(normalMapVector).Normalized();
+		}
 
 		float lambertCosineLaw{ GetLambertCosine(tangentSpaceVector, lightDirection) };
 
@@ -328,26 +332,35 @@ namespace dae
 		float specularShininess{ 25.f };
 		float specularExp{ specularShininess * m_pGlossVehicle->Sample(v.uv).r };
 		ColorRGB specular{ BRDF::Phong(m_pSpecularVehicle->Sample(v.uv), 1.f, specularExp, lightDirection, v.viewDirection, tangentSpaceVector) };
-
 		ColorRGB lambert{ BRDF::Lambert(1.0f, m_pDiffuseVehicle->Sample(v.uv)) };
 		//ColorRGB lambert{ BRDF::Lambert(1.0f, {0.5,0.5,0.5}) };
 
-
+		switch (m_ShadingMode)
+		{
+		case ShadingModes::Combined:
+			return ((lambert * lightIntensity) + specular) * lambertCosineLaw;
+			break;
+		case ShadingModes::ObservedArea:
+			return ColorRGB{ 1, 1, 1 } *lambertCosineLaw;
+			break;
+		case ShadingModes::Diffuse:
+			return (lambert * lambertCosineLaw * lightIntensity);
+			break;
+		case ShadingModes::Specular:
+			return specular;
+			break;
+		}
 
 		//return (lambert * lambertCosineLaw * lightIntensity); // lambert final.
 		//return specular; // specular final.
-		return ((lambert * lightIntensity) + specular) * lambertCosineLaw; // combined.
-
-		//return (lambert * lightIntensity) * lambertCosineLaw;
-		//return lambertCosineLaw * ((lightIntensity * lambert) + specular + ambient);
+		//return ((lambert * lightIntensity) + specular) * lambertCosineLaw; // combined.
 		//return ColorRGB{1, 1, 1} * lambertCosineLaw;
+
 	}
 
-	float Software::GetLambertCosine(const dae::Vector3& normal, const dae::Vector3& lightDirection) const
+	float Software::GetLambertCosine(const Vector3& normal, const Vector3& lightDirection) const
 	{
-		float lambertCosine{};
-		//lambertCosine = std::max(Vector3::Dot(normal, -lightDirection.Normalized()), 0.0f);
-		lambertCosine = std::max(0.f, Vector3::Dot(normal, -lightDirection.Normalized()));
+		const float lambertCosine = std::max(0.f, Vector3::Dot(normal, -lightDirection.Normalized()));
 		return lambertCosine;
 	}
 
@@ -362,5 +375,20 @@ namespace dae
 		m_pNormalVehicle = pNormal;
 		m_pGlossVehicle = pGloss;
 		m_pSpecularVehicle = pSpecular;
+	}
+
+	void Software::CycleShadingMode()
+	{
+		int count{ static_cast<int>(m_ShadingMode) };
+		count++;
+		if (count > 3)
+		{
+			count = 0;
+		}
+		const auto castEnum = static_cast<ShadingModes>(count);
+		m_ShadingMode = castEnum;
+
+		const std::array<std::string, 4> shadingNames{ "Shading Mode: Combined.", "Shading Mode: Observed Area.", "Shading Mode: Diffuse.", "Shading Mode: Specular." };
+		std::cout << shadingNames.at(count) << std::endl;
 	}
 }
