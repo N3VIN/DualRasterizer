@@ -41,10 +41,10 @@ namespace dae
 			m_pSoftware->CycleCullMode();
 		}
 
-		void ToggleRotation() const
+		void ToggleRotation()
 		{
-			m_pVehicleMesh->ToggleRotation();
-			m_pFireMesh->ToggleRotation();
+			m_ToggleRotation = !m_ToggleRotation;
+			std::cout << (m_ToggleRotation ? "Rotation ON.\n" : "Rotation OFF.\n");
 		}
 
 		void ToggleUniformBg() const
@@ -71,6 +71,7 @@ namespace dae
 		Texture* m_pDiffuseFire;
 
 		bool m_ToggleRenderModeSoftware{ false };
+		bool m_ToggleRotation{ true };
 
 
 	};

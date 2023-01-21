@@ -103,6 +103,12 @@ namespace dae
 		m_pVehicleMesh->Update(m_Camera, pTimer);
 		m_pFireMesh->Update(m_Camera, pTimer);
 
+		if (m_ToggleRotation)
+		{
+			m_pVehicleMesh->RotateY(90.0f * pTimer->GetElapsed());
+			m_pFireMesh->RotateY(90.0f * pTimer->GetElapsed());
+		}
+
 	}
 
 

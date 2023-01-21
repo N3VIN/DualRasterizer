@@ -32,11 +32,7 @@ namespace dae
 		void Translate(float x, float y, float z);
 		void Translate(const Vector3& v);
 
-		void ToggleRotation()
-		{
-			m_ToggleRotation = !m_ToggleRotation;
-			std::cout << (m_ToggleRotation ? "Rotation ON.\n" : "Rotation OFF.\n");
-		}
+		
 
 		Matrix m_WorldMatrix;
 
@@ -54,8 +50,6 @@ namespace dae
 
 	private:
 
-		
-
 
 		// DX.
 		Effect* m_pEffect;
@@ -63,9 +57,6 @@ namespace dae
 		ID3D11Buffer* m_pVertexBuffer;
 		ID3D11Buffer* m_pIndexBuffer;
 		uint32_t m_NumIndices;
-
-
-		bool m_ToggleRotation{ true };
 
 	};
 }
