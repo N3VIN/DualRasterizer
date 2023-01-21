@@ -170,8 +170,8 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
 
     //return float4(lambert * lambertCosineLaw * gLightIntensity, 1.0f); // lambert final.
     //return float4(specular, 1.0f); // specular final.
-    return float4(lambertCosineLaw, lambertCosineLaw, lambertCosineLaw, 1.0f); // observed area final.
-    //return float4(((lambert * gLightIntensity) + specular) * lambertCosineLaw, 1.0f);
+    //return float4(lambertCosineLaw, lambertCosineLaw, lambertCosineLaw, 1.0f); // observed area final.
+    return float4(((lambert * gLightIntensity) + specular + gAmbient) * lambertCosineLaw, 1.0f);
 }
 
 //----------

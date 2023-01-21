@@ -74,13 +74,16 @@ namespace dae
 
 			//Update Matrices
 			CalculateViewMatrix();
-			//CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
 		}
 
 		void KeyboardMovement(float deltaTime)
 		{
 			float velocity{ 5.f };
 			const Uint8* pKeyboardState = SDL_GetKeyboardState(NULL);
+			if (pKeyboardState[SDL_SCANCODE_LSHIFT])
+			{
+				velocity = 15.f;
+			}
 			if (pKeyboardState[SDL_SCANCODE_W])
 			{
 				origin += forward * velocity * deltaTime;
@@ -118,11 +121,11 @@ namespace dae
 			}
 
 			// unreal style up and down.
-			if (pKeyboardState[SDL_SCANCODE_Z])
+			if (pKeyboardState[SDL_SCANCODE_Q])
 			{
 				origin -= up * velocity * deltaTime;
 			}
-			if (pKeyboardState[SDL_SCANCODE_C])
+			if (pKeyboardState[SDL_SCANCODE_E])
 			{
 				origin += up * velocity * deltaTime;
 			}
@@ -145,38 +148,33 @@ namespace dae
 		{
 
 			int mouseX, mouseY;
-			float sensitivity{ 0.5f };
+			float sensitivity{ 0.025f };
 			auto mouse = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 
 			if (mouse == SDL_BUTTON(3)) // rotate yaw and pitch.
 			{
-				totalYaw -= mouseY * (sensitivity * deltaTime);
-				totalPitch += mouseX * (sensitivity * deltaTime);
-
-				//totalYaw -= (mouseY * deltaTime) * sensitivity;
-				//totalPitch += (mouseX * deltaTime) * sensitivity;
-
+				totalYaw -= mouseY * sensitivity;
+				totalPitch += mouseX * sensitivity;
 
 			}
 			else if (mouse == SDL_BUTTON(1) && mouseY != 0) // move forward and backward.
 			{
-				origin += forward * (mouseY * (sensitivity * deltaTime));
+				origin += forward * mouseY * sensitivity;
 			}
 			else if (mouse == SDL_BUTTON(1) && mouseX != 0) // rotate yaw.
 			{
-				totalPitch -= mouseX * (sensitivity * deltaTime);
+				totalPitch -= mouseX * sensitivity;
 			}
 			// mouse == 5 because SDL_BUTTON is a mask and combining them for 2 buttons.
 			else if (mouse == 5 && mouseY > 0) // move down.
 			{
-				origin -= up * (2.f * deltaTime);
+				origin -= up * 2.f;
 			}
 			else if (mouse == 5 && mouseY < 0) // move up.
 			{
-				origin += up * (2.f * deltaTime);
+				origin += up * 2.f;
 			}
 
-			//Matrix rotationMatrix = Matrix::CreateRotation(totalPitch, totalYaw, 0.f);
 			Matrix rotationMatrix = Matrix::CreateRotation(totalYaw, totalPitch, 0.f);
 			forward = rotationMatrix.TransformVector(Vector3::UnitZ);
 			forward.Normalize();
