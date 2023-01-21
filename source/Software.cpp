@@ -354,7 +354,7 @@ namespace dae
 		switch (m_ShadingMode)
 		{
 		case ShadingModes::Combined:
-			return ((lambert * lightIntensity) + specular + ambient) * lambertCosineLaw;
+			return ((lambert * lightIntensity + specular) * lambertCosineLaw) + ambient;
 			break;
 		case ShadingModes::ObservedArea:
 			return ColorRGB{ 1, 1, 1 } * lambertCosineLaw;
