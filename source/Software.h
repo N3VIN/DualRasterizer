@@ -71,8 +71,6 @@ namespace dae
 
 		float* m_pDepthBufferPixels{};
 
-		// add cullingmode.
-
 		bool m_DepthBufferVisualized{ false };
 		bool m_UniformBg{ false };
 
@@ -83,7 +81,7 @@ namespace dae
 		Texture* m_pSpecularVehicle{ nullptr };
 
 		ShadingModes m_ShadingMode{ ShadingModes::Combined };
-		Culling m_CurrentCullingMode{ Culling::None };
+		Culling m_CurrentCullingMode{ Culling::Back };
 
 
 		bool m_ToggleNormalMap{ true };
@@ -92,8 +90,8 @@ namespace dae
 
 		//
 
-		void VertexTransformationFunction(std::vector<Mesh*>& mesh, const Camera& camera) const;
-		void PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, ColorRGB color) const;
+		static void VertexTransformationFunction(const std::vector<Mesh*>& mesh, const Camera& camera);
+		void PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2) const;
 		float ZBufferValue(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;
 		float WInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;
 		Vector2 UVInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2, const float wInterpolated) const;

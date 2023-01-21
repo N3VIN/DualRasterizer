@@ -164,7 +164,7 @@ namespace dae
 
 	enum class Culling
 	{
-		None, Back, Front
+		Back, None, Front
 	};
 
 }

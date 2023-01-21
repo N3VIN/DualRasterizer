@@ -153,17 +153,17 @@ namespace dae
 
 			if (mouse == SDL_BUTTON(3)) // rotate yaw and pitch.
 			{
-				totalYaw -= mouseY * sensitivity;
-				totalPitch += mouseX * sensitivity;
+				totalYaw -= static_cast<float>(mouseY) * sensitivity;
+				totalPitch += static_cast<float>(mouseX) * sensitivity;
 
 			}
 			else if (mouse == SDL_BUTTON(1) && mouseY != 0) // move forward and backward.
 			{
-				origin += forward * mouseY * sensitivity;
+				origin += forward * static_cast<float>(mouseY) * sensitivity;
 			}
 			else if (mouse == SDL_BUTTON(1) && mouseX != 0) // rotate yaw.
 			{
-				totalPitch -= mouseX * sensitivity;
+				totalPitch -= static_cast<float>(mouseX) * sensitivity;
 			}
 			// mouse == 5 because SDL_BUTTON is a mask and combining them for 2 buttons.
 			else if (mouse == 5 && mouseY > 0) // move down.
@@ -175,7 +175,7 @@ namespace dae
 				origin += up * 2.f;
 			}
 
-			Matrix rotationMatrix = Matrix::CreateRotation(totalYaw, totalPitch, 0.f);
+			const Matrix rotationMatrix = Matrix::CreateRotation(totalYaw, totalPitch, 0.f);
 			forward = rotationMatrix.TransformVector(Vector3::UnitZ);
 			forward.Normalize();
 

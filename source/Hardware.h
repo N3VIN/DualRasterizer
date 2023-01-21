@@ -55,7 +55,7 @@ namespace dae
 		Mesh* m_pVehicleMesh;
 		Mesh* m_pFireMesh;
 
-		Culling m_CurrentCullingMode{ Culling::None };
+		Culling m_CurrentCullingMode{ Culling::Back };
 
 		bool m_ToggleFireMesh{ true };
 		bool m_UniformBg{ false };

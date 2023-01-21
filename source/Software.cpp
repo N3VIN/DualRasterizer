@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Software.h"
+#include <ppl.h> // parallel_for
 
 #include <array>
 
@@ -36,26 +37,23 @@ namespace dae
 
 
 		// Main Mesh vector.
-		m_pVehicleMesh->m_VerticesOut.clear();
 		std::vector<Mesh*> meshes_world{};
-		meshes_world.push_back(m_pVehicleMesh);
-
+		meshes_world.emplace_back(m_pVehicleMesh);
 
 		VertexTransformationFunction(meshes_world, camera);
 
 		std::fill_n(m_pDepthBufferPixels, m_Width * m_Height, FLT_MAX);
 
-		UINT8 color{};
+		UINT8 color;
 		m_UniformBg ? color = 25 : color = 100;
 		SDL_FillRect(m_pBackBuffer, NULL, SDL_MapRGB(m_pBackBuffer->format, color, color, color));
 
 		//RENDER LOGIC
-		ColorRGB finalColor{};
 		for (const auto& mesh : meshes_world)
 		{
 			if (mesh->m_PrimitiveTopology == Mesh::PrimitiveTopology::TriangleList)
 			{
-				for (size_t i = 0; i < mesh->m_Indices.size(); i += 3)
+				concurrency::parallel_for(static_cast<size_t>(0), mesh->m_Indices.size(), static_cast<size_t>(3), [=](const size_t i)
 				{
 					Vertex_Out v0{ mesh->m_VerticesOut[mesh->m_Indices[i]] };
 					Vertex_Out v1{ mesh->m_VerticesOut[mesh->m_Indices[i + 1]] };
@@ -65,37 +63,38 @@ namespace dae
 					if (v0.position.x < -1 || v0.position.x > 1 ||
 						v0.position.y < -1 || v0.position.y > 1)
 					{
-						continue;
+						return;
 					}
 
 					if (v1.position.x < -1 || v1.position.x > 1 ||
 						v1.position.y < -1 || v1.position.y > 1)
 					{
-						continue;
+						return;
 					}
 
 					if (v2.position.x < -1 || v2.position.x > 1 ||
 						v2.position.y < -1 || v2.position.y > 1)
 					{
-						continue;
+						return;
 					}
 
 					// NDC to raster.
-					v0.position.x = ((v0.position.x + 1) / 2) * m_Width;
-					v0.position.y = ((1 - v0.position.y) / 2) * m_Height;
+					v0.position.x = ((v0.position.x + 1) / 2) * static_cast<float>(m_Width);
+					v0.position.y = ((1 - v0.position.y) / 2) * static_cast<float>(m_Height);
 
-					v1.position.x = ((v1.position.x + 1) / 2) * m_Width;
-					v1.position.y = ((1 - v1.position.y) / 2) * m_Height;
+					v1.position.x = ((v1.position.x + 1) / 2) * static_cast<float>(m_Width);
+					v1.position.y = ((1 - v1.position.y) / 2) * static_cast<float>(m_Height);
 
-					v2.position.x = ((v2.position.x + 1) / 2) * m_Width;
-					v2.position.y = ((1 - v2.position.y) / 2) * m_Height;
+					v2.position.x = ((v2.position.x + 1) / 2) * static_cast<float>(m_Width);
+					v2.position.y = ((1 - v2.position.y) / 2) * static_cast<float>(m_Height);
 
-					PixelRenderLoop(v0, v1, v2, finalColor);
-				}
+					PixelRenderLoop(v0, v1, v2);
+				});
+
 			}
 			else if (mesh->m_PrimitiveTopology == Mesh::PrimitiveTopology::TriangleStrip)
 			{
-				for (size_t i = 0; i < mesh->m_Indices.size() - 2; i++)
+				concurrency::parallel_for(static_cast<size_t>(0), mesh->m_Indices.size() - 2, [=](const size_t i)
 				{
 					uint32_t index1{ mesh->m_Indices[i] };
 					uint32_t index2{ mesh->m_Indices[i + 1] };
@@ -111,8 +110,8 @@ namespace dae
 					Vertex_Out v1{ mesh->m_VerticesOut[index2] };
 					Vertex_Out v2{ mesh->m_VerticesOut[index3] };
 
-					PixelRenderLoop(v0, v1, v2, finalColor);
-				}
+					PixelRenderLoop(v0, v1, v2);
+				});
 			}
 		}
 		//@END
@@ -123,10 +122,11 @@ namespace dae
 
 	}
 
-	void Software::VertexTransformationFunction(std::vector<Mesh*>& mesh, const Camera& camera) const
+	void Software::VertexTransformationFunction(const std::vector<Mesh*>& mesh, const Camera& camera)
 	{
 		for (auto& m : mesh)
 		{
+			m->m_VerticesOut.clear();
 			const auto worldViewProjectionMatrix{ m->m_WorldMatrix * camera.viewMatrix * camera.projectionMatrix };
 
 			for (const auto& vertices : m->m_VerticesIn)
@@ -141,34 +141,20 @@ namespace dae
 				Vector3 tangent{ m->m_WorldMatrix.TransformVector(vertices.tangent).Normalized() };
 
 				// View Direction Calculation.
-				//Vector3 viewDirection{ m.worldMatrix.TransformPoint(vertices.position) - m_Camera.origin };
 				Vector3 viewDirection{ camera.origin - m->m_WorldMatrix.TransformPoint(vertices.position) };
-				//Vector3 viewDirection{ vertices.position };
 
 				// Perspective Divide.
 				projectedVertex.x /= projectedVertex.w;
 				projectedVertex.y /= projectedVertex.w;
 				projectedVertex.z /= projectedVertex.w;
 
-				//// Clipping.
-				//if ( projectedVertex.x < -1 || projectedVertex.x > 1 ||
-				//	 projectedVertex.y < -1 || projectedVertex.y > 1 )
-				//{
-				//	continue;
-				//}
-
-				//// NDC to screenspace.
-				//projectedVertex.x = ((projectedVertex.x + 1) / 2) * m_Width;
-				//projectedVertex.y = ((1 - projectedVertex.y) / 2) * m_Height;
-
-				//Vertex_Out temp{ projectedVertex, {vertices.color}, {vertices.uv}, {worldSpaceNormal}, {tangent}, {viewDirection} };
 				Vertex_Out temp{ projectedVertex, vertices.color, vertices.uv, worldSpaceNormal, tangent, viewDirection };
 				m->m_VerticesOut.emplace_back(temp);
 			}
 		}
 	}
 
-	void Software::PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, ColorRGB color) const
+	void Software::PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2) const
 	{
 		// Bounding Box.
 		Vector3 min{}, max{};
@@ -262,15 +248,13 @@ namespace dae
 								finalColor = ColorRGB{ 1, 1, 1 } *Remap(zBufferValue, 0.985f, 1.f, 0.f, 1.f);
 							}
 
-							color = finalColor;
-
 							//Update Color in Buffer
-							color.MaxToOne();
+							finalColor.MaxToOne();
 
 							m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-								static_cast<uint8_t>(color.r * 255),
-								static_cast<uint8_t>(color.g * 255),
-								static_cast<uint8_t>(color.b * 255));
+								static_cast<uint8_t>(finalColor.r * 255),
+								static_cast<uint8_t>(finalColor.g * 255),
+								static_cast<uint8_t>(finalColor.b * 255));
 						}
 					}
 				}
@@ -312,7 +296,7 @@ namespace dae
 
 	float Software::Remap(float value, float oldRangeL, float oldRangeN, float newRangeL, float newRangeN) const
 	{
-		float newVal{ std::clamp(value, oldRangeL, oldRangeN) };
+		const float newVal{ std::clamp(value, oldRangeL, oldRangeN) };
 		return newRangeL + (newVal - oldRangeL) * (newRangeN - newRangeL) / (newRangeN - oldRangeL);
 	}
 
@@ -365,6 +349,8 @@ namespace dae
 		case ShadingModes::Specular:
 			return specular;
 			break;
+		default:
+			return ((lambert * lightIntensity + specular) * lambertCosineLaw) + ambient;
 		}
 
 		//return (lambert * lambertCosineLaw * lightIntensity); // lambert final.
