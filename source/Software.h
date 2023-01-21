@@ -1,6 +1,7 @@
 #pragma once
 #include "Mesh.h"
 #include "Camera.h"
+#include "Utils.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -26,6 +27,7 @@ namespace dae
 
 		void SetMesh(Mesh* pMesh);
 		void SetTextures(Texture* pDiffuse, Texture* pNormal, Texture* pGloss, Texture* pSpecular);
+		void CycleCullMode();
 
 		void VisualizeDepthBuffer()
 		{
@@ -75,6 +77,8 @@ namespace dae
 		Texture* m_pSpecularVehicle{ nullptr };
 
 		ShadingModes m_ShadingMode{ ShadingModes::Combined };
+		Culling m_CurrentCullingMode{ Culling::None };
+
 
 		bool m_ToggleNormalMap{ true };
 
@@ -92,7 +96,6 @@ namespace dae
 		float Remap(float value, float oldRangeL, float oldRangeN, float newRangeL, float newRangeN) const;
 		ColorRGB PixelShading(const Vertex_Out& v) const;
 		float GetLambertCosine(const Vector3& normal, const Vector3& lightDirection) const;
-
 
 
 	};

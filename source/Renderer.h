@@ -37,6 +37,7 @@ namespace dae
 		void CycleCullMode() const
 		{
 			m_pHardware->CycleCullMode();
+			m_pSoftware->CycleCullMode();
 		}
 
 		void ToggleRotation() const

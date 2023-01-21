@@ -124,7 +124,7 @@ namespace dae
 		{
 			count = 0;
 		}
-		const Culling castEnum = static_cast<Culling>(count);
+		const auto castEnum = static_cast<Culling>(count);
 		m_CurrentCullingMode = castEnum;
 
 		switch (m_CurrentCullingMode)
