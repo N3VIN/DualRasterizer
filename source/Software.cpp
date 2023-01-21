@@ -45,7 +45,10 @@ namespace dae
 		VertexTransformationFunction(meshes_world, camera);
 
 		std::fill_n(m_pDepthBufferPixels, m_Width * m_Height, FLT_MAX);
-		SDL_FillRect(m_pBackBuffer, NULL, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+		UINT8 color{};
+		m_UniformBg ? color = 25 : color = 100;
+		SDL_FillRect(m_pBackBuffer, NULL, SDL_MapRGB(m_pBackBuffer->format, color, color, color));
 
 		//RENDER LOGIC
 		ColorRGB finalColor{};
@@ -333,7 +336,6 @@ namespace dae
 		float specularExp{ specularShininess * m_pGlossVehicle->Sample(v.uv).r };
 		ColorRGB specular{ BRDF::Phong(m_pSpecularVehicle->Sample(v.uv), 1.f, specularExp, lightDirection, v.viewDirection, tangentSpaceVector) };
 		ColorRGB lambert{ BRDF::Lambert(1.0f, m_pDiffuseVehicle->Sample(v.uv)) };
-		//ColorRGB lambert{ BRDF::Lambert(1.0f, {0.5,0.5,0.5}) };
 
 		switch (m_ShadingMode)
 		{
@@ -341,7 +343,7 @@ namespace dae
 			return ((lambert * lightIntensity) + specular) * lambertCosineLaw;
 			break;
 		case ShadingModes::ObservedArea:
-			return ColorRGB{ 1, 1, 1 } *lambertCosineLaw;
+			return ColorRGB{ 1, 1, 1 } * lambertCosineLaw;
 			break;
 		case ShadingModes::Diffuse:
 			return (lambert * lambertCosineLaw * lightIntensity);

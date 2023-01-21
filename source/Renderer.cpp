@@ -24,7 +24,7 @@ namespace dae
 		m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
 		// Initialize Camera.
-		m_Camera.Initialize(45.f, { 0.0f, 0.0f, -50.f }, m_AspectRatio);
+		m_Camera.Initialize(45.f, { 0.0f, 0.0f, 0.f }, m_AspectRatio);
 
 		std::vector<Vertex_In> vertices {};
 		std::vector<uint32_t> indices {};
@@ -55,6 +55,9 @@ namespace dae
 			, nullptr
 			, nullptr
 			, pFireEffect };
+
+		m_pVehicleMesh->Translate(0.f, 0.f, 50.f);
+		m_pFireMesh->Translate(0.f, 0.f, 50.f);
 
 		m_pSoftware->SetMesh(m_pVehicleMesh);
 		m_pSoftware->SetTextures(m_pDiffuseVehicle, m_pNormalVehicle, m_pGlossVehicle, m_pSpecularVehicle);

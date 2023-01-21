@@ -39,6 +39,12 @@ namespace dae
 			std::cout << (m_ToggleNormalMap ? "Normal Map ON.\n" : "Normal Map OFF.\n");
 		}
 
+		void ToggleUniformBg()
+		{
+			m_UniformBg = !m_UniformBg;
+			//std::cout << (m_UniformBg ? "Uniform background ON.\n" : "Uniform background OFF.\n");
+		}
+
 	private:
 
 		enum class ShadingModes
@@ -60,6 +66,7 @@ namespace dae
 		// add cullingmode.
 
 		bool m_DepthBufferVisualized{ false };
+		bool m_UniformBg{ false };
 
 		Mesh* m_pVehicleMesh{ nullptr };
 		Texture* m_pDiffuseVehicle{ nullptr };

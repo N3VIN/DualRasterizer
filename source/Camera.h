@@ -152,6 +152,11 @@ namespace dae
 			{
 				totalYaw -= mouseY * (sensitivity * deltaTime);
 				totalPitch += mouseX * (sensitivity * deltaTime);
+
+				//totalYaw -= (mouseY * deltaTime) * sensitivity;
+				//totalPitch += (mouseX * deltaTime) * sensitivity;
+
+
 			}
 			else if (mouse == SDL_BUTTON(1) && mouseY != 0) // move forward and backward.
 			{

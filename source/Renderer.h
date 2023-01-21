@@ -38,11 +38,19 @@ namespace dae
 		{
 			m_pHardware->CycleCullMode();
 		}
+
 		void ToggleRotation() const
 		{
 			m_pVehicleMesh->ToggleRotation();
 			m_pFireMesh->ToggleRotation();
 		}
+
+		void ToggleUniformBg() const
+		{
+			m_pHardware->ToggleUniformBg();
+			m_pSoftware->ToggleUniformBg();
+		}
+
 
 	private:
 

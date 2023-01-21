@@ -200,7 +200,7 @@ namespace dae
 		{
 			count = 0;
 		}
-		const Filtering castEnum = static_cast<Filtering>(count);
+		const auto castEnum = static_cast<Filtering>(count);
 		m_CurrentFilteringMode = castEnum;
 
 		switch (m_CurrentFilteringMode)
@@ -209,19 +209,19 @@ namespace dae
 
 			SetEffectSamplerVariable(m_pPointSamplerState);
 
-			std::cout << "Point\n";
+			std::cout << "Filtering Mode: Point\n";
 			break;
 		case Filtering::Linear:
 
 			SetEffectSamplerVariable(m_pLinearSamplerState);
 
-			std::cout << "Linear\n";
+			std::cout << "Filtering Mode: Linear\n";
 			break;
 		case Filtering::Anisotropic:
 
 			SetEffectSamplerVariable(m_pAnisotropicSamplerState);
 
-			std::cout << "Anisotropic\n";
+			std::cout << "Filtering Mode: Anisotropic\n";
 			break;
 		}
 	}

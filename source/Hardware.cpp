@@ -90,7 +90,8 @@ namespace dae
 
 		// Clear RenderTargetView and DepthStencilView
 
-		const ColorRGB clearColor = ColorRGB{ 0.0f, 0.0f, 0.3f };
+		ColorRGB clearColor{};
+		m_UniformBg ? clearColor = ColorRGB{ 0.1f, 0.1f, 0.1f } : clearColor = ColorRGB{ 0.39f, 0.59f, 0.93f };
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, &clearColor.r);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 

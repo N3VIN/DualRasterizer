@@ -44,6 +44,7 @@ int main(int argc, char* args[])
 	pTimer->Start();
 	float printTimer = 0.f;
 	bool isLooping = true;
+	bool isDisplayFPS = false;
 	while (isLooping)
 	{
 		//--------- Get input events ---------
@@ -82,6 +83,13 @@ int main(int argc, char* args[])
 				case SDLK_F9:
 					pRenderer->CycleCullMode();
 					break;
+				case SDLK_F10:
+					pRenderer->ToggleUniformBg();
+					break;
+				case SDLK_F11:
+					isDisplayFPS = !isDisplayFPS;
+					std::cout << (isDisplayFPS ? "Toggle Print FPS ON.\n" : "Toggle Print FPS OFF.\n");
+					break;
 				}
 				break;
 			default: ;
@@ -100,7 +108,10 @@ int main(int argc, char* args[])
 		if (printTimer >= 1.f)
 		{
 			printTimer = 0.f;
-			std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+			if (isDisplayFPS)
+			{
+				std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+			}
 		}
 	}
 	pTimer->Stop();

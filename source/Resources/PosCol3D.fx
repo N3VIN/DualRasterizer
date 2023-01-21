@@ -105,13 +105,7 @@ struct VS_OUTPUT
 
 float3 Lambert(float kd, float3 cd)
 {
-    //float x = cd.x * kd;
-	//float y = cd.y * kd;
-	//float z = cd.z * kd;
-
     float3 lambert = float3(cd * kd) / gPI;
-    //float3 lambert = float3(x, y, z) / gPI;
-
     return lambert;
 }
 
@@ -140,6 +134,7 @@ VS_OUTPUT VS(VS_INPUT input)
     output.Color = input.Color;
     output.Uv = input.Uv;
     output.Normal = mul(normalize(input.Normal), (float3x3)gWorldMatrix);
+    //output.Tangent = -mul(normalize(input.Tangent), (float3x3)gWorldMatrix);
     output.Tangent = mul(normalize(input.Tangent), (float3x3)gWorldMatrix);
     output.WorldPosition = mul(input.Position, gWorldMatrix);
     return output;
@@ -175,7 +170,8 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
 
     //return float4(lambert * lambertCosineLaw * gLightIntensity, 1.0f); // lambert final.
     //return float4(specular, 1.0f); // specular final.
-    return float4(((lambert * gLightIntensity) + specular) * lambertCosineLaw, 1.0f);
+    return float4(lambertCosineLaw, lambertCosineLaw, lambertCosineLaw, 1.0f); // observed area final.
+    //return float4(((lambert * gLightIntensity) + specular) * lambertCosineLaw, 1.0f);
 }
 
 //----------
