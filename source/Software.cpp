@@ -186,84 +186,93 @@ namespace dae
 		{
 			for (int py{ static_cast<int>(min.y) }; py < static_cast<int>(max.y); ++py)
 			{
-				Vector2 pixel{ static_cast<float>(px), static_cast<float>(py) };
-
-				//edges
-				const Vector2 v0v1{ v1.position.GetXY() - v0.position.GetXY() };
-				const Vector2 v1v2{ v2.position.GetXY() - v1.position.GetXY() };
-				const Vector2 v2v0{ v0.position.GetXY() - v2.position.GetXY() };
-
-				const Vector2 v0v2{ v2.position.GetXY() - v0.position.GetXY() };
-
-				// Vector from vertex to pixel.
-				Vector2 vertexToPixel1{ pixel - v0.position.GetXY() };
-				Vector2 vertexToPixel2{ pixel - v1.position.GetXY() };
-				Vector2 vertexToPixel3{ pixel - v2.position.GetXY() };
-
-				//Cross of vertex to pixel and vertex
-				float signedArea1{ Vector2::Cross(v0v1, vertexToPixel1) };
-				float signedArea2{ Vector2::Cross(v1v2, vertexToPixel2) };
-				float signedArea3{ Vector2::Cross(v2v0, vertexToPixel3) };
-
-				// Culling Check.
-				bool isFront{ signedArea1 > 0 && signedArea2 > 0 && signedArea3 > 0 };
-				bool isBack{ signedArea1 < 0 && signedArea2 < 0 && signedArea3 < 0 };
-				if ((m_CurrentCullingMode == Culling::Back && !isFront) || (m_CurrentCullingMode == Culling::Front
-					&& !isBack) || (m_CurrentCullingMode == Culling::None && !isBack && !isFront))
+				if (m_ToggleBoundingBox)
 				{
-					continue;
-				}
-
-				// Pixel inside triangle.
-				float areaTotalParallelogram{ Vector2::Cross(v0v1, v0v2) };
-
-				float W0{ signedArea2 / areaTotalParallelogram };
-				float W1{ signedArea3 / areaTotalParallelogram };
-				float W2{ signedArea1 / areaTotalParallelogram };
-
-				//Vector3 pixelPosition{ (v0.position * W0) + (v1.position * W1) + (v2.position * W2) };
-
-				float zBufferValue{ ZBufferValue(v0, v1, v2, W0, W1, W2) };
-
-				float depth = m_pDepthBufferPixels[py * m_Width + px];
-				//if (pixelPosition.z < depth)
-				if (zBufferValue < depth)
-				{
-					m_pDepthBufferPixels[py * m_Width + px] = zBufferValue;
-					//Vector2 uv = { (v0.uv * W0) + (v1.uv * W1) + (v2.uv * W2) };
-					float wInterpolated{ WInterpolated(v0, v1, v2, W0, W1, W2) };
-					Vector2 uv{ UVInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated) };
-					Vector3 normal{ NormalInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
-					Vector3 tangent{ TangentInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
-					Vector3 viewDirection{ ViewDirInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
-
-					ColorRGB finalColor{};
-
-					if (!m_DepthBufferVisualized)
-					{
-						//finalColor = m_pTexture->Sample(uv);
-
-						const Vector4 pixelPos{ static_cast<float>(px), static_cast<float>(py), zBufferValue, wInterpolated };
-
-						Vertex_Out pixelVertex{ pixelPos, finalColor, uv, normal, tangent, viewDirection };
-
-						//finalColor += PixelShading(pixelVertex);
-						finalColor = PixelShading(pixelVertex);
-					}
-					else
-					{
-						finalColor = ColorRGB{ 1, 1, 1 } *Remap(zBufferValue, 0.985f, 1.f, 0.f, 1.f);
-					}
-
-					color = finalColor;
-
-					//Update Color in Buffer
-					color.MaxToOne();
-
 					m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-						static_cast<uint8_t>(color.r * 255),
-						static_cast<uint8_t>(color.g * 255),
-						static_cast<uint8_t>(color.b * 255));
+						static_cast<uint8_t>(255),
+						static_cast<uint8_t>(255),
+						static_cast<uint8_t>(255));
+				}
+				else
+				{
+					Vector2 pixel{ static_cast<float>(px), static_cast<float>(py) };
+
+					//edges
+					const Vector2 v0v1{ v1.position.GetXY() - v0.position.GetXY() };
+					const Vector2 v1v2{ v2.position.GetXY() - v1.position.GetXY() };
+					const Vector2 v2v0{ v0.position.GetXY() - v2.position.GetXY() };
+
+					const Vector2 v0v2{ v2.position.GetXY() - v0.position.GetXY() };
+
+					// Vector from vertex to pixel.
+					Vector2 vertexToPixel1{ pixel - v0.position.GetXY() };
+					Vector2 vertexToPixel2{ pixel - v1.position.GetXY() };
+					Vector2 vertexToPixel3{ pixel - v2.position.GetXY() };
+
+					//Cross of vertex to pixel and vertex
+					float signedArea1{ Vector2::Cross(v0v1, vertexToPixel1) };
+					float signedArea2{ Vector2::Cross(v1v2, vertexToPixel2) };
+					float signedArea3{ Vector2::Cross(v2v0, vertexToPixel3) };
+
+					// Culling Check.
+					bool isBackCulling{ signedArea1 > 0 && signedArea2 > 0 && signedArea3 > 0 };
+					bool isFrontCulling{ signedArea1 < 0 && signedArea2 < 0 && signedArea3 < 0 };
+
+					if ((m_CurrentCullingMode == Culling::Back && isBackCulling) || (m_CurrentCullingMode == Culling::Front
+						&& isFrontCulling) || (m_CurrentCullingMode == Culling::None && (isFrontCulling || isBackCulling)))
+					{
+						// Pixel inside triangle.
+						float areaTotalParallelogram{ Vector2::Cross(v0v1, v0v2) };
+
+						float W0{ signedArea2 / areaTotalParallelogram };
+						float W1{ signedArea3 / areaTotalParallelogram };
+						float W2{ signedArea1 / areaTotalParallelogram };
+
+						//Vector3 pixelPosition{ (v0.position * W0) + (v1.position * W1) + (v2.position * W2) };
+
+						float zBufferValue{ ZBufferValue(v0, v1, v2, W0, W1, W2) };
+
+						float depth = m_pDepthBufferPixels[py * m_Width + px];
+						//if (pixelPosition.z < depth)
+						if (zBufferValue < depth)
+						{
+							m_pDepthBufferPixels[py * m_Width + px] = zBufferValue;
+							//Vector2 uv = { (v0.uv * W0) + (v1.uv * W1) + (v2.uv * W2) };
+							float wInterpolated{ WInterpolated(v0, v1, v2, W0, W1, W2) };
+							Vector2 uv{ UVInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated) };
+							Vector3 normal{ NormalInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
+							Vector3 tangent{ TangentInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
+							Vector3 viewDirection{ ViewDirInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
+
+							ColorRGB finalColor{};
+
+							if (!m_DepthBufferVisualized)
+							{
+								//finalColor = m_pTexture->Sample(uv);
+
+								const Vector4 pixelPos{ static_cast<float>(px), static_cast<float>(py), zBufferValue, wInterpolated };
+
+								Vertex_Out pixelVertex{ pixelPos, finalColor, uv, normal, tangent, viewDirection };
+
+								//finalColor += PixelShading(pixelVertex);
+								finalColor = PixelShading(pixelVertex);
+							}
+							else
+							{
+								finalColor = ColorRGB{ 1, 1, 1 } *Remap(zBufferValue, 0.985f, 1.f, 0.f, 1.f);
+							}
+
+							color = finalColor;
+
+							//Update Color in Buffer
+							color.MaxToOne();
+
+							m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+								static_cast<uint8_t>(color.r * 255),
+								static_cast<uint8_t>(color.g * 255),
+								static_cast<uint8_t>(color.b * 255));
+						}
+					}
 				}
 			}
 		}

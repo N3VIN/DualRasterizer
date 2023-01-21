@@ -26,6 +26,7 @@ namespace dae
 		void VisualizeDepthBuffer() const;
 		void CycleShadingMode() const;
 		void ToggleNormalMap() const;
+		void ToggleBoundingBox() const;
 
 		void SwitchRenderMode()
 		{

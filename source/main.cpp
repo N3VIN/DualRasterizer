@@ -80,6 +80,9 @@ int main(int argc, char* args[])
 				case SDLK_F7:
 					pRenderer->VisualizeDepthBuffer();
 					break;
+				case SDLK_F8:
+					pRenderer->ToggleBoundingBox();
+					break;
 				case SDLK_F9:
 					pRenderer->CycleCullMode();
 					break;

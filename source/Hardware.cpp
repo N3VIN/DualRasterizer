@@ -131,15 +131,15 @@ namespace dae
 		{
 		case Culling::None:
 			m_pDeviceContext->RSSetState(m_pNoneRasterizerState);
-			std::cout << "None\n";
+			std::cout << "Culling Mode: None\n";
 			break;
 		case Culling::Back:
 			m_pDeviceContext->RSSetState(m_pBackRasterizerState);
-			std::cout << "Back\n";
+			std::cout << "Culling Mode: Back\n";
 			break;
 		case Culling::Front:
 			m_pDeviceContext->RSSetState(m_pFrontRasterizerState);
-			std::cout << "Front\n";
+			std::cout << "Culling Mode: Front\n";
 			break;
 		}
 	}

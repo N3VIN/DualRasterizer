@@ -130,8 +130,6 @@ namespace dae
 		}
 	}
 
-	
-
 	void Renderer::VisualizeDepthBuffer() const
 	{
 		if (m_ToggleRenderModeSoftware)
@@ -165,6 +163,18 @@ namespace dae
 		else
 		{
 			std::cout << "Toggle Normal Map not Supported in Hardware mode :(\n";
+		}
+	}
+
+	void Renderer::ToggleBoundingBox() const
+	{
+		if (m_ToggleRenderModeSoftware)
+		{
+			m_pSoftware->ToggleBoundingBox();
+		}
+		else
+		{
+			std::cout << "Bounding Box Visualization not Supported in Hardware mode :(\n";
 		}
 	}
 

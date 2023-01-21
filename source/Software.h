@@ -47,6 +47,12 @@ namespace dae
 			//std::cout << (m_UniformBg ? "Uniform background ON.\n" : "Uniform background OFF.\n");
 		}
 
+		void ToggleBoundingBox()
+		{
+			m_ToggleBoundingBox = !m_ToggleBoundingBox;
+			std::cout << (m_ToggleBoundingBox ? "Bounding Box ON.\n" : "Bounding Box OFF.\n");
+		}
+
 	private:
 
 		enum class ShadingModes
@@ -81,6 +87,7 @@ namespace dae
 
 
 		bool m_ToggleNormalMap{ true };
+		bool m_ToggleBoundingBox{ false };
 
 
 		//
