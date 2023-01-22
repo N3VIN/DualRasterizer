@@ -21,6 +21,13 @@ namespace dae
 
 		m_pDepthBufferPixels = new float[m_Width * m_Height];
 
+		//m_pVehicleMesh->m_VerticesOut
+
+		
+		/*for (int i = 0; i < m_pVehicleMesh->m_VerticesIn.size(); ++i)
+		{
+			
+		}*/
 	}
 
 	Software::~Software()
@@ -126,59 +133,39 @@ namespace dae
 	{
 		for (auto& m : mesh)
 		{
-			m->m_VerticesOut.clear();
 			const auto worldViewProjectionMatrix{ m->m_WorldMatrix * camera.viewMatrix * camera.projectionMatrix };
 
-			//int verticesSize = m->m_VerticesIn.size();
+			const size_t verticesSize = m->m_VerticesIn.size();
+
 			//std::mutex mtx;
-			//concurrency::parallel_for(0, verticesSize, [=](int i)
-			//{
-			//	// Projection.
-			//	Vector4 projectedVertex{ worldViewProjectionMatrix.TransformPoint(m->m_VerticesIn.at(i).position.x, m->m_VerticesIn.at(i).position.y, m->m_VerticesIn.at(i).position.z, 1) };
-
-			//	// World space normal calculation.
-			//	Vector3 worldSpaceNormal{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).normal).Normalized() };
-
-			//	// Tangent calculation.
-			//	Vector3 tangent{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).tangent).Normalized() };
-
-			//	// View Direction Calculation.
-			//	Vector3 viewDirection{ camera.origin - m->m_WorldMatrix.TransformPoint(m->m_VerticesIn.at(i).position) };
-
-			//	// Perspective Divide.
-			//	projectedVertex.x /= projectedVertex.w;
-			//	projectedVertex.y /= projectedVertex.w;
-			//	projectedVertex.z /= projectedVertex.w;
-
-			//	Vertex_Out temp{ projectedVertex, m->m_VerticesIn.at(i).color, m->m_VerticesIn.at(i).uv, worldSpaceNormal, tangent, viewDirection };
-
-			//	std::unique_lock<std::mutex> lock(mtx);
-			//	m->m_VerticesOut.emplace_back(temp);
-			//	lock.unlock();
-			//});
-
-			for (const auto& vertices : m->m_VerticesIn)
+			concurrency::parallel_for(static_cast<size_t>(0), verticesSize, [=](const size_t i)
 			{
 				// Projection.
-				Vector4 projectedVertex{ worldViewProjectionMatrix.TransformPoint(vertices.position.x, vertices.position.y, vertices.position.z, 1) };
+				Vector4 projectedVertex{ worldViewProjectionMatrix.TransformPoint(m->m_VerticesIn.at(i).position.x, m->m_VerticesIn.at(i).position.y, m->m_VerticesIn.at(i).position.z, 1) };
 
 				// World space normal calculation.
-				Vector3 worldSpaceNormal{ m->m_WorldMatrix.TransformVector(vertices.normal).Normalized() };
+				Vector3 worldSpaceNormal{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).normal).Normalized() };
 
 				// Tangent calculation.
-				Vector3 tangent{ m->m_WorldMatrix.TransformVector(vertices.tangent).Normalized() };
+				Vector3 tangent{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).tangent).Normalized() };
 
 				// View Direction Calculation.
-				Vector3 viewDirection{ camera.origin - m->m_WorldMatrix.TransformPoint(vertices.position) };
+				Vector3 viewDirection{ camera.origin - m->m_WorldMatrix.TransformPoint(m->m_VerticesIn.at(i).position) };
 
 				// Perspective Divide.
 				projectedVertex.x /= projectedVertex.w;
 				projectedVertex.y /= projectedVertex.w;
 				projectedVertex.z /= projectedVertex.w;
 
-				Vertex_Out temp{ projectedVertex, vertices.color, vertices.uv, worldSpaceNormal, tangent, viewDirection };
-				m->m_VerticesOut.emplace_back(temp);
-			}
+				const Vertex_Out temp{ projectedVertex, m->m_VerticesIn.at(i).color, m->m_VerticesIn.at(i).uv, worldSpaceNormal, tangent, viewDirection };
+
+				//std::unique_lock<std::mutex> lock(mtx);
+				//m->m_VerticesOut.emplace_back(temp);
+				//lock.unlock();
+
+				m->m_VerticesOut.at(i) = temp;
+
+			});
 		}
 	}
 
@@ -397,6 +384,11 @@ namespace dae
 	void Software::SetMesh(Mesh* pMesh)
 	{
 		m_pVehicleMesh = pMesh;
+
+		for (int i = 0; i < m_pVehicleMesh->m_VerticesIn.size(); ++i)
+		{
+			m_pVehicleMesh->m_VerticesOut.push_back(Vertex_Out{});
+		}
 	}
 
 	void Software::SetTextures(Texture* pDiffuse, Texture* pNormal, Texture* pGloss, Texture* pSpecular)

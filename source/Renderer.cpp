@@ -221,7 +221,7 @@ namespace dae
 		std::cout << "\n";
 
 		std::cout << "[Features Added]\n";
-		std::cout << "Basic Multithreading.\n";
+		std::cout << "Multithreading.\n";
 		std::cout << "[E] World Up.\n";
 		std::cout << "[Q] World Down.\n";
 		std::cout << "\n";
