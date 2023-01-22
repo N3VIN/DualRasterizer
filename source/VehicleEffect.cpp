@@ -29,6 +29,18 @@ namespace dae
 		{
 			std::wcout << L"m_pSpecularMapVariable not valid\n";
 		}
+
+		m_pLightDirection = m_pEffect->GetVariableByName("gLightDirection")->AsVector();
+		if (!m_pLightDirection->IsValid())
+		{
+			std::wcout << L"m_pLightDirection not valid\n";
+		}
+
+		m_pLightIntensity = m_pEffect->GetVariableByName("gLightIntensity")->AsScalar();
+		if (!m_pLightIntensity->IsValid())
+		{
+			std::wcout << L"m_pLightIntensity not valid\n";
+		}
 	}
 
 	VehicleEffect::~VehicleEffect()
@@ -86,4 +98,17 @@ namespace dae
 		}
 	}
 
+	void VehicleEffect::SetLight(Lights* pLight)
+	{
+		if (m_pLightDirection)
+		{
+			const auto floatArr = Vector4{ pLight->GetDirection(), 1.f };
+			m_pLightDirection->SetFloatVector(&floatArr.x);
+		}
+
+		if (m_pLightIntensity)
+		{
+			m_pLightIntensity->SetFloat(pLight->GetlightIntensity());
+		}
+	}
 }

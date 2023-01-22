@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "Hardware.h"
-
 #include "Effect.h"
-
 
 namespace dae
 {

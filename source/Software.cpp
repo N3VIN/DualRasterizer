@@ -18,7 +18,6 @@ namespace dae
 		m_pFrontBuffer = SDL_GetWindowSurface(pWindow);
 		m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
 		m_pBackBufferPixels = static_cast<uint32_t*>(m_pBackBuffer->pixels);
-
 		m_pDepthBufferPixels = new float[m_Width * m_Height];
 
 	}
@@ -300,8 +299,8 @@ namespace dae
 
 	ColorRGB Software::PixelShading(const Vertex_Out& v) const
 	{
-		const Vector3 lightDirection{ 0.577f, -0.577f, 0.577f };
-		constexpr float lightIntensity{ 7.0f };
+		const Vector3 lightDirection{ m_pDirectionalLight->GetDirection() };
+		const float lightIntensity{ m_pDirectionalLight->GetlightIntensity() };
 		constexpr ColorRGB ambient{ 0.025f, 0.025f, 0.025f };
 
 		Vector3 tangentSpaceVector = v.normal;
@@ -366,6 +365,11 @@ namespace dae
 		{
 			m_pVehicleMesh->m_VerticesOut.push_back(Vertex_Out{});
 		}
+	}
+
+	void Software::SetLight(Lights* pLight)
+	{
+		m_pDirectionalLight = pLight;
 	}
 
 	void Software::SetTextures(Texture* pDiffuse, Texture* pNormal, Texture* pGloss, Texture* pSpecular)

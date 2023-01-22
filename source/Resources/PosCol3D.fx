@@ -15,11 +15,11 @@ Texture2D gGlossMap : GlossMap;
 
 // float global variables.
 float gPI = float(3.1415926f);
-float gLightIntensity = float(7.0f);
+float gLightIntensity;
 float gSpecularShininess = float(25.0f);
 
 // float3 global variables.
-float3 gLightDirection = float3(0.577f, -0.577f, 0.577f);
+float3 gLightDirection;
 float3 gAmbient = float3(0.025f, 0.025f, 0.025f);
 
 // SamplerState global variable.
@@ -29,14 +29,6 @@ SamplerState gSampleState
     AddressU = Wrap; // or Mirror, Clamp, Border
     AddressV = Wrap; // or Mirror, Clamp, Border
 };
-
-
-// RasterizerState global variable.
-/*RasterizerState gRasterizerState
-{
-	CullMode = none;
-	FrontCounterClockWise = false;
-};*/
 
 // BlendState global variable.
 BlendState gBlendState
@@ -165,8 +157,6 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     float3 specular = Phong(gSpecularMap.Sample(gSampleState, input.Uv), 1.0f, specularExp, gLightDirection, viewDirection, tangentSpaceVector);
 
     float3 lambert = Lambert(1.0f, gDiffuseMap.Sample(gSampleState, input.Uv));
-    //float3 lambert = Lambert(1.0f, float3(0.5f, 0.5f, 0.5f));
-
 
     //return float4(lambert * lambertCosineLaw * gLightIntensity, 1.0f); // lambert final.
     //return float4(specular, 1.0f); // specular final.
@@ -190,29 +180,3 @@ technique11 DefaultTechnique
         SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
 }
-
-/*technique11 LinearFilteringTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterizerState);
-        SetDepthStencilState(gDepthStencilState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_Linear() ) );
-    }
-}
-
-technique11 AnisotropicFilteringTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterizerState);
-        SetDepthStencilState(gDepthStencilState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_Anisotropic() ) );
-    }
-}*/

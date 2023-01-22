@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "Utils.h"
+#include "Lights.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -23,6 +24,7 @@ namespace dae
 		void Render(const Camera& camera) const;
 		void CycleShadingMode();
 		void SetMesh(Mesh* pMesh);
+		void SetLight(Lights* pLight);
 		void SetTextures(Texture* pDiffuse, Texture* pNormal, Texture* pGloss, Texture* pSpecular);
 		void CycleCullMode();
 		void VisualizeDepthBuffer();
@@ -59,6 +61,8 @@ namespace dae
 
 		ShadingModes m_ShadingMode{ ShadingModes::Combined };
 		Culling m_CurrentCullingMode{ Culling::Back };
+
+		Lights* m_pDirectionalLight{ nullptr };
 
 		// Functions.
 

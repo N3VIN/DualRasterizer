@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Texture.h"
+#include "Lights.h"
 
 namespace dae
 {
@@ -30,6 +31,8 @@ namespace dae
 		virtual void SetNormalMap(Texture* pNormalTexture) = 0;
 		virtual void SetSpecularMap(Texture* pSpecularTexture) = 0;
 		virtual void SetGlossMap(Texture* pGlossTexture) = 0;
+
+		virtual void SetLight(Lights* pLight) = 0;
 
 		void CycleFilteringMode();
 

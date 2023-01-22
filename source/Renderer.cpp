@@ -7,6 +7,9 @@
 #include "Effect.h"
 #include "VehicleEffect.h"
 #include "FireEffect.h"
+#include "LightManager.h"
+#include "DirectionalLight.h"
+
 
 namespace dae
 {
@@ -28,11 +31,18 @@ namespace dae
 		// Initialize Camera.
 		m_Camera.Initialize(45.f, { 0.0f, 0.0f, 0.f }, m_AspectRatio);
 
+		LightManager::GetInstance().add(new DirectionalLight{ {0.577f, -0.577f, 0.577f}, 7.0f });
+
+		const auto light = LightManager::GetInstance().GetLights().at(0); // Since we are only adding only one light.
+		m_pSoftware->SetLight(light);
+
 		std::vector<Vertex_In> vertices{};
 		std::vector<uint32_t> indices{};
 
 		VehicleEffect* pVehicleEffect = new VehicleEffect{ device, L"Resources/PosCol3D.fx" };
 		Utils::ParseOBJ("Resources/vehicle.obj", vertices, indices);
+
+		pVehicleEffect->SetLight(light);
 
 		m_pDiffuseVehicle = new Texture{ "Resources/vehicle_diffuse.png" , device };
 		m_pNormalVehicle = new Texture{ "Resources/vehicle_normal.png" , device };
@@ -45,6 +55,7 @@ namespace dae
 			, m_pGlossVehicle
 			, m_pSpecularVehicle
 			, pVehicleEffect };
+
 
 		FireEffect* pFireEffect = new FireEffect{ device, L"Resources/FireShader.fx" };
 		Utils::ParseOBJ("Resources/fireFX.obj", vertices, indices);
@@ -107,8 +118,8 @@ namespace dae
 
 		if (m_ToggleRotation)
 		{
-			m_pVehicleMesh->RotateY(90.0f * pTimer->GetElapsed());
-			m_pFireMesh->RotateY(90.0f * pTimer->GetElapsed());
+			m_pVehicleMesh->RotateY(45.0f * pTimer->GetElapsed());
+			m_pFireMesh->RotateY(45.0f * pTimer->GetElapsed());
 		}
 	}
 
@@ -245,6 +256,7 @@ namespace dae
 
 		std::cout << "[Features Added]\n";
 		std::cout << "Multithreading.\n";
+		std::cout << "Directional light and Manager.\n";
 		std::cout << "[E] Local Up.\n";
 		std::cout << "[Q] Local Down.\n";
 		std::cout << "\n";

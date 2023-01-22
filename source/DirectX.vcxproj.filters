@@ -47,6 +47,9 @@
     <ClInclude Include="BRDFs.h" />
     <ClInclude Include="Software.h" />
     <ClInclude Include="Hardware.h" />
+    <ClInclude Include="Lights.h" />
+    <ClInclude Include="LightManager.h" />
+    <ClInclude Include="DirectionalLight.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -74,5 +77,7 @@
     <ClCompile Include="FireEffect.cpp" />
     <ClCompile Include="Hardware.cpp" />
     <ClCompile Include="Software.cpp" />
+    <ClCompile Include="LightManager.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
   </ItemGroup>
 </Project>

@@ -18,13 +18,6 @@ SamplerState gSampleState
     AddressV = Wrap; // or Mirror, Clamp, Border
 };
 
-// RasterizerState global variable.
-/*RasterizerState gRasterizerState
-{
-	CullMode = none;
-	FrontCounterClockWise = false;
-};*/
-
 // BlendState global variable.
 BlendState gBlendState
 {
@@ -128,29 +121,3 @@ technique11 DefaultTechnique
         SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
 }
-
-/*technique11 LinearFilteringTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterizerState);
-        SetDepthStencilState(gDepthStencilState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_Linear() ) );
-    }
-}
-
-technique11 AnisotropicFilteringTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterizerState);
-        SetDepthStencilState(gDepthStencilState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_Anisotropic() ) );
-    }
-}*/

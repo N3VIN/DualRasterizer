@@ -20,6 +20,8 @@ namespace dae
 		void SetSpecularMap(Texture* pSpecularTexture) override {}
 		void SetGlossMap(Texture* pGlossTexture) override {}
 
+		void SetLight(Lights* pLight) override {}
+
 	private:
 
 		ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;

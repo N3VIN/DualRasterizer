@@ -131,7 +131,6 @@ namespace dae
 
 		void MouseMovement(float deltaTime)
 		{
-
 			int mouseX, mouseY;
 			constexpr float sensitivity{ 0.025f };
 			const auto mouse = SDL_GetRelativeMouseState(&mouseX, &mouseY);
