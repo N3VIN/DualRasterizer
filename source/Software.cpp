@@ -129,6 +129,34 @@ namespace dae
 			m->m_VerticesOut.clear();
 			const auto worldViewProjectionMatrix{ m->m_WorldMatrix * camera.viewMatrix * camera.projectionMatrix };
 
+			//int verticesSize = m->m_VerticesIn.size();
+			//std::mutex mtx;
+			//concurrency::parallel_for(0, verticesSize, [=](int i)
+			//{
+			//	// Projection.
+			//	Vector4 projectedVertex{ worldViewProjectionMatrix.TransformPoint(m->m_VerticesIn.at(i).position.x, m->m_VerticesIn.at(i).position.y, m->m_VerticesIn.at(i).position.z, 1) };
+
+			//	// World space normal calculation.
+			//	Vector3 worldSpaceNormal{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).normal).Normalized() };
+
+			//	// Tangent calculation.
+			//	Vector3 tangent{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).tangent).Normalized() };
+
+			//	// View Direction Calculation.
+			//	Vector3 viewDirection{ camera.origin - m->m_WorldMatrix.TransformPoint(m->m_VerticesIn.at(i).position) };
+
+			//	// Perspective Divide.
+			//	projectedVertex.x /= projectedVertex.w;
+			//	projectedVertex.y /= projectedVertex.w;
+			//	projectedVertex.z /= projectedVertex.w;
+
+			//	Vertex_Out temp{ projectedVertex, m->m_VerticesIn.at(i).color, m->m_VerticesIn.at(i).uv, worldSpaceNormal, tangent, viewDirection };
+
+			//	std::unique_lock<std::mutex> lock(mtx);
+			//	m->m_VerticesOut.emplace_back(temp);
+			//	lock.unlock();
+			//});
+
 			for (const auto& vertices : m->m_VerticesIn)
 			{
 				// Projection.

@@ -3,6 +3,8 @@
 #include "Vertex.h"
 #include "Effect.h"
 #include "Camera.h"
+#include <ppl.h> // parallel_for
+
 
 namespace dae
 {
