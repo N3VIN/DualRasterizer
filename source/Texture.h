@@ -7,7 +7,7 @@ namespace dae
 {
 	struct Vector2;
 
-	class Texture
+	class Texture final
 	{
 	public:
 		Texture(const std::string& path, ID3D11Device* pDevice);
@@ -26,7 +26,6 @@ namespace dae
 		ID3D11ShaderResourceView* m_pSRV;
 
 		// Software.
-
 		SDL_Surface* m_pSurface{ nullptr };
 		uint32_t* m_pSurfacePixels{ nullptr };
 	};

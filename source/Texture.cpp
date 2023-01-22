@@ -13,7 +13,6 @@ namespace dae
 		m_pSurfacePixels = static_cast<uint32_t*>(pSurface->pixels);
 
 		// Create Texture2D Resource.
-
 		DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		D3D11_TEXTURE2D_DESC desc{};
 		desc.Width = m_pSurface->w;
@@ -36,16 +35,12 @@ namespace dae
 		HRESULT hr = pDevice->CreateTexture2D(&desc, &initData, &m_pResource);
 
 		// Create Texture2D Resource View.
-
 		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc{};
 		SRVDesc.Format = format;
 		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		SRVDesc.Texture2D.MipLevels = 1;
 
 		hr = pDevice->CreateShaderResourceView(m_pResource, &SRVDesc, &m_pSRV);
-
-		// Free SDL Surface.
-		//SDL_FreeSurface(pSurface);
 
 	}
 
@@ -71,11 +66,11 @@ namespace dae
 	{
 		Uint8 r{}, g{}, b{};
 
-		Vector2 UV{};
+		Vector2 UV;
 
 		// Wrapping.
-		float integerPartX{ float(abs(int(uv.x))) };
-		float integerPartY{ float(abs(int(uv.y))) };
+		const float integerPartX{ static_cast<float>(abs(static_cast<int>(uv.x))) };
+		const float integerPartY{ static_cast<float>(abs(static_cast<int>(uv.y))) };
 
 		if (uv.x > 1.f)
 		{
@@ -110,8 +105,7 @@ namespace dae
 
 		SDL_GetRGB(pixel, m_pSurface->format, &r, &g, &b);
 
-		const float remap{ 1 / 255.f };
-
+		constexpr float remap{ 1 / 255.f };
 		return { r * remap, g * remap, b * remap };
 	}
 }

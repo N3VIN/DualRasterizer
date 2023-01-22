@@ -27,32 +27,11 @@ namespace dae
 		void CycleShadingMode() const;
 		void ToggleNormalMap() const;
 		void ToggleBoundingBox() const;
-
-		void SwitchRenderMode()
-		{
-			m_ToggleRenderModeSoftware = !m_ToggleRenderModeSoftware;
-			std::cout << (m_ToggleRenderModeSoftware ? "Render Mode: Software.\n" : "Render Mode: Hardware.\n");
-		}
+		void SwitchRenderMode();
 		void ToggleFireMesh() const;
-
-		void CycleCullMode() const
-		{
-			m_pHardware->CycleCullMode();
-			m_pSoftware->CycleCullMode();
-		}
-
-		void ToggleRotation()
-		{
-			m_ToggleRotation = !m_ToggleRotation;
-			std::cout << (m_ToggleRotation ? "Rotation ON.\n" : "Rotation OFF.\n");
-		}
-
-		void ToggleUniformBg() const
-		{
-			m_pHardware->ToggleUniformBg();
-			m_pSoftware->ToggleUniformBg();
-		}
-
+		void CycleCullMode() const;
+		void ToggleRotation();
+		void ToggleUniformBg() const;
 
 	private:
 
@@ -72,6 +51,8 @@ namespace dae
 
 		bool m_ToggleRenderModeSoftware{ false };
 		bool m_ToggleRotation{ true };
+
+		// Functions.
 
 		void Keybindings() const;
 	};

@@ -3,12 +3,10 @@
 #include "Vertex.h"
 #include "Effect.h"
 #include "Camera.h"
-#include <ppl.h> // parallel_for
-
 
 namespace dae
 {
-	class Mesh
+	class Mesh final
 	{
 	public:
 		Mesh(ID3D11Device* pDevice, const std::vector<Vertex_In>& vertex, const std::vector<uint32_t>& index
@@ -34,8 +32,6 @@ namespace dae
 		void Translate(float x, float y, float z);
 		void Translate(const Vector3& v);
 
-		
-
 		Matrix m_WorldMatrix;
 
 		// Software.
@@ -52,8 +48,7 @@ namespace dae
 
 	private:
 
-
-		// DX.
+		// DIRECTX Variables.
 		Effect* m_pEffect;
 		ID3D11InputLayout* m_pInputLayout;
 		ID3D11Buffer* m_pVertexBuffer;

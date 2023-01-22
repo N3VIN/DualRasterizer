@@ -28,8 +28,8 @@ namespace dae
 		// Initialize Camera.
 		m_Camera.Initialize(45.f, { 0.0f, 0.0f, 0.f }, m_AspectRatio);
 
-		std::vector<Vertex_In> vertices {};
-		std::vector<uint32_t> indices {};
+		std::vector<Vertex_In> vertices{};
+		std::vector<uint32_t> indices{};
 
 		VehicleEffect* pVehicleEffect = new VehicleEffect{ device, L"Resources/PosCol3D.fx" };
 		Utils::ParseOBJ("Resources/vehicle.obj", vertices, indices);
@@ -110,7 +110,6 @@ namespace dae
 			m_pVehicleMesh->RotateY(90.0f * pTimer->GetElapsed());
 			m_pFireMesh->RotateY(90.0f * pTimer->GetElapsed());
 		}
-
 	}
 
 
@@ -186,6 +185,12 @@ namespace dae
 		}
 	}
 
+	void Renderer::SwitchRenderMode()
+	{
+		m_ToggleRenderModeSoftware = !m_ToggleRenderModeSoftware;
+		std::cout << (m_ToggleRenderModeSoftware ? "Render Mode: Software.\n" : "Render Mode: Hardware.\n");
+	}
+
 	void Renderer::ToggleFireMesh() const
 	{
 		if (m_ToggleRenderModeSoftware)
@@ -196,6 +201,24 @@ namespace dae
 		{
 			m_pHardware->ToggleFireMesh();
 		}
+	}
+
+	void Renderer::CycleCullMode() const
+	{
+		m_pHardware->CycleCullMode();
+		m_pSoftware->CycleCullMode();
+	}
+
+	void Renderer::ToggleRotation()
+	{
+		m_ToggleRotation = !m_ToggleRotation;
+		std::cout << (m_ToggleRotation ? "Rotation ON.\n" : "Rotation OFF.\n");
+	}
+
+	void Renderer::ToggleUniformBg() const
+	{
+		m_pHardware->ToggleUniformBg();
+		m_pSoftware->ToggleUniformBg();
 	}
 
 	void Renderer::Keybindings() const
@@ -222,8 +245,8 @@ namespace dae
 
 		std::cout << "[Features Added]\n";
 		std::cout << "Multithreading.\n";
-		std::cout << "[E] World Up.\n";
-		std::cout << "[Q] World Down.\n";
+		std::cout << "[E] Local Up.\n";
+		std::cout << "[Q] Local Down.\n";
 		std::cout << "\n";
 
 	}

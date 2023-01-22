@@ -13,11 +13,6 @@ namespace dae
 			, m_VerticesIn(vertex)
 			, m_Indices(index)
 		{
-		/*m_pEffect = effect;
-
-		m_Vertices = vertex;
-		m_Indices = index;*/
-
 		// Create Vertex Layout.
 		static constexpr uint32_t numElements{ 5 };
 		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
@@ -155,11 +150,6 @@ namespace dae
 
 	void Mesh::Update(const Camera& camera, const Timer* pTimer)
 	{
-		/*if (m_ToggleRotation)
-		{
-			RotateY(90.0f * pTimer->GetElapsed());
-		}*/
-
 		const Matrix worldViewProjectionMat = m_WorldMatrix * camera.viewMatrix * camera.projectionMatrix;
 		m_pEffect->SetMatWorldViewProjVariable(worldViewProjectionMat);
 

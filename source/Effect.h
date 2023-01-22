@@ -18,14 +18,13 @@ namespace dae
 
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
 
+		ID3DX11Effect* GetEffect() const;
+		ID3DX11EffectTechnique* GetTechnique() const;
+		void SetMatWorldViewProjVariable(const Matrix& worldViewProjectionMatrix) const;
+		void SetMatWorldVariable(const Matrix& worldMatrix) const;
+		void SetMatInvViewVariable(const Matrix& invViewMatrix) const;
 
-		ID3DX11Effect* GetEffect();
-		ID3DX11EffectTechnique* GetTechnique();
-		void SetMatWorldViewProjVariable(const Matrix& worldViewProjectionMatrix);
-		void SetMatWorldVariable(const Matrix& worldMatrix);
-		void SetMatInvViewVariable(const Matrix& invViewMatrix);
-
-		void SetEffectSamplerVariable(ID3D11SamplerState* samplerState);
+		void SetEffectSamplerVariable(ID3D11SamplerState* samplerState) const;
 
 		virtual void SetDiffuseMap(Texture* pDiffuseTexture) = 0;
 		virtual void SetNormalMap(Texture* pNormalTexture) = 0;

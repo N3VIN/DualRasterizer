@@ -22,9 +22,6 @@ namespace dae
 		{
 			std::cout << "DirectX initialization failed!\n";
 		}
-
-
-
 	}
 
 	Hardware::~Hardware()
@@ -96,7 +93,6 @@ namespace dae
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		// Set Pipeline + Invoke Drawcalls (=Render)
-		//...
 
 		m_pVehicleMesh->Render(m_pDeviceContext);
 
@@ -144,10 +140,26 @@ namespace dae
 		}
 	}
 
+	ID3D11Device* Hardware::GetDevice() const
+	{
+		return m_pDevice;
+	}
+
+	void Hardware::ToggleFireMesh()
+	{
+		m_ToggleFireMesh = !m_ToggleFireMesh;
+		std::cout << (m_ToggleFireMesh ? "Toggle Fire Mesh ON.\n" : "Toggle Fire Mesh OFF.\n");
+	}
+
+	void Hardware::ToggleUniformBg()
+	{
+		m_UniformBg = !m_UniformBg;
+		std::cout << (m_UniformBg ? "Uniform background ON.\n" : "Uniform background OFF.\n");
+	}
+
 	HRESULT Hardware::InitializeDirectX()
 	{
 		// Creating Device and DeviceContext.
-
 		D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 		uint32_t createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
@@ -161,7 +173,6 @@ namespace dae
 		}
 
 		// Create DXGI Factory.
-
 		IDXGIFactory1* pDXGIFactory{};
 		result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDXGIFactory));
 
@@ -171,7 +182,6 @@ namespace dae
 		}
 
 		// Create Swapchain discriptor.
-
 		DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 		swapChainDesc.BufferDesc.Width = m_Width;
 		swapChainDesc.BufferDesc.Height = m_Height;
@@ -188,14 +198,12 @@ namespace dae
 		swapChainDesc.Flags = 0;
 
 		// Get the handle (HWND) from the SDL Backbuffer.
-
 		SDL_SysWMinfo sysWMInfo{};
 		SDL_VERSION(&sysWMInfo.version);
 		SDL_GetWindowWMInfo(m_pWindow, &sysWMInfo);
 		swapChainDesc.OutputWindow = sysWMInfo.info.win.window;
 
 		// Create Swapchain.
-
 		result = pDXGIFactory->CreateSwapChain(m_pDevice, &swapChainDesc, &m_pSwapChain);
 		if (FAILED(result))
 		{
@@ -251,11 +259,9 @@ namespace dae
 		}
 
 		// Bind RenderTargetView and DepthStencilView to Output Merger Stage.
-
 		m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
 		// Rasterizer States.
-
 		// None Culling.
 		D3D11_RASTERIZER_DESC descNone{};
 		descNone.FillMode = D3D11_FILL_SOLID;
@@ -317,7 +323,6 @@ namespace dae
 		m_pDeviceContext->RSSetState(m_pNoneRasterizerState);
 
 		// Set Viewport.
-
 		D3D11_VIEWPORT viewport{};
 		viewport.Width = static_cast<float>(m_Width);
 		viewport.Height = static_cast<float>(m_Height);

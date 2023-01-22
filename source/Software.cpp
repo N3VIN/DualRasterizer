@@ -21,13 +21,6 @@ namespace dae
 
 		m_pDepthBufferPixels = new float[m_Width * m_Height];
 
-		//m_pVehicleMesh->m_VerticesOut
-
-		
-		/*for (int i = 0; i < m_pVehicleMesh->m_VerticesIn.size(); ++i)
-		{
-			
-		}*/
 	}
 
 	Software::~Software()
@@ -41,7 +34,6 @@ namespace dae
 		//@START
 		//Lock BackBuffer
 		SDL_LockSurface(m_pBackBuffer);
-
 
 		// Main Mesh vector.
 		std::vector<Mesh*> meshes_world{};
@@ -144,13 +136,13 @@ namespace dae
 				Vector4 projectedVertex{ worldViewProjectionMatrix.TransformPoint(m->m_VerticesIn.at(i).position.x, m->m_VerticesIn.at(i).position.y, m->m_VerticesIn.at(i).position.z, 1) };
 
 				// World space normal calculation.
-				Vector3 worldSpaceNormal{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).normal).Normalized() };
+				const Vector3 worldSpaceNormal{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).normal).Normalized() };
 
 				// Tangent calculation.
-				Vector3 tangent{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).tangent).Normalized() };
+				const Vector3 tangent{ m->m_WorldMatrix.TransformVector(m->m_VerticesIn.at(i).tangent).Normalized() };
 
 				// View Direction Calculation.
-				Vector3 viewDirection{ camera.origin - m->m_WorldMatrix.TransformPoint(m->m_VerticesIn.at(i).position) };
+				const Vector3 viewDirection{ camera.origin - m->m_WorldMatrix.TransformPoint(m->m_VerticesIn.at(i).position) };
 
 				// Perspective Divide.
 				projectedVertex.x /= projectedVertex.w;
@@ -229,16 +221,12 @@ namespace dae
 						float W1{ signedArea3 / areaTotalParallelogram };
 						float W2{ signedArea1 / areaTotalParallelogram };
 
-						//Vector3 pixelPosition{ (v0.position * W0) + (v1.position * W1) + (v2.position * W2) };
-
 						float zBufferValue{ ZBufferValue(v0, v1, v2, W0, W1, W2) };
 
 						float depth = m_pDepthBufferPixels[py * m_Width + px];
-						//if (pixelPosition.z < depth)
 						if (zBufferValue < depth)
 						{
 							m_pDepthBufferPixels[py * m_Width + px] = zBufferValue;
-							//Vector2 uv = { (v0.uv * W0) + (v1.uv * W1) + (v2.uv * W2) };
 							float wInterpolated{ WInterpolated(v0, v1, v2, W0, W1, W2) };
 							Vector2 uv{ UVInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated) };
 							Vector3 normal{ NormalInterpolated(v0, v1, v2, W0, W1, W2, wInterpolated).Normalized() };
@@ -249,18 +237,13 @@ namespace dae
 
 							if (!m_DepthBufferVisualized)
 							{
-								//finalColor = m_pTexture->Sample(uv);
-
 								const Vector4 pixelPos{ static_cast<float>(px), static_cast<float>(py), zBufferValue, wInterpolated };
-
 								Vertex_Out pixelVertex{ pixelPos, finalColor, uv, normal, tangent, viewDirection };
-
-								//finalColor += PixelShading(pixelVertex);
 								finalColor = PixelShading(pixelVertex);
 							}
 							else
 							{
-								finalColor = ColorRGB{ 1, 1, 1 } *Remap(zBufferValue, 0.985f, 1.f, 0.f, 1.f);
+								finalColor = ColorRGB{ 1, 1, 1 } * Remap(zBufferValue, 0.985f, 1.f, 0.f, 1.f);
 							}
 
 							//Update Color in Buffer
@@ -279,13 +262,13 @@ namespace dae
 
 	float Software::ZBufferValue(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const
 	{
-		float denominator = (1.0f / v0.position.z) * w0 + (1.0f / v1.position.z) * w1 + (1.0f / v2.position.z) * w2;
+		const float denominator = (1.0f / v0.position.z) * w0 + (1.0f / v1.position.z) * w1 + (1.0f / v2.position.z) * w2;
 		return (1 / denominator);
 	}
 
 	float Software::WInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const
 	{
-		float denominator = (1.0f / v0.position.w) * w0 + (1.0f / v1.position.w) * w1 + (1.0f / v2.position.w) * w2;
+		const float denominator = (1.0f / v0.position.w) * w0 + (1.0f / v1.position.w) * w1 + (1.0f / v2.position.w) * w2;
 		return (1 / denominator);
 	}
 
@@ -317,38 +300,38 @@ namespace dae
 
 	ColorRGB Software::PixelShading(const Vertex_Out& v) const
 	{
-		Vector3 lightDirection{ 0.577f, -0.577f, 0.577f };
-		float lightIntensity{ 7.0f };
-		const ColorRGB ambient{ 0.025f, 0.025f, 0.025f };
+		const Vector3 lightDirection{ 0.577f, -0.577f, 0.577f };
+		constexpr float lightIntensity{ 7.0f };
+		constexpr ColorRGB ambient{ 0.025f, 0.025f, 0.025f };
 
 		Vector3 tangentSpaceVector = v.normal;
 
 		if (m_ToggleNormalMap)
 		{
 			//// Calculate Binormal.
-			Vector3 binormal{ Vector3::Cross(v.normal, v.tangent).Normalized() };
+			const Vector3 binormal{ Vector3::Cross(v.normal, v.tangent).Normalized() };
 
 			//// Calculate Tangent space Matrix.
-			Matrix tangentSpaceMatrix{ v.tangent, binormal, v.normal, Vector3::Zero };
+			const Matrix tangentSpaceMatrix{ v.tangent, binormal, v.normal, Vector3::Zero };
 
 			//// Calculate Normal according to the Normal Map.
-			ColorRGB normalMapCol{ (2 * m_pNormalVehicle->Sample(v.uv)) - colors::White };
+			const ColorRGB normalMapCol{ (2 * m_pNormalVehicle->Sample(v.uv)) - colors::White };
 			Vector3 normalMapVector{ normalMapCol.r, normalMapCol.g, normalMapCol.b };
 			normalMapVector /= 255.f;
 			tangentSpaceVector = tangentSpaceMatrix.TransformVector(normalMapVector).Normalized();
 		}
 
-		float lambertCosineLaw{ GetLambertCosine(tangentSpaceVector, lightDirection) };
+		const float lambertCosineLaw{ GetLambertCosine(tangentSpaceVector, lightDirection) };
 
 		if (lambertCosineLaw < 0.f)
 		{
 			return { 0,0,0 };
 		}
 
-		float specularShininess{ 25.f };
-		float specularExp{ specularShininess * m_pGlossVehicle->Sample(v.uv).r };
-		ColorRGB specular{ BRDF::Phong(m_pSpecularVehicle->Sample(v.uv), 1.f, specularExp, lightDirection, v.viewDirection, tangentSpaceVector) };
-		ColorRGB lambert{ BRDF::Lambert(1.0f, m_pDiffuseVehicle->Sample(v.uv)) };
+		constexpr float specularShininess{ 25.f };
+		const float specularExp{ specularShininess * m_pGlossVehicle->Sample(v.uv).r };
+		const ColorRGB specular{ BRDF::Phong(m_pSpecularVehicle->Sample(v.uv), 1.f, specularExp, lightDirection, v.viewDirection, tangentSpaceVector) };
+		const ColorRGB lambert{ BRDF::Lambert(1.0f, m_pDiffuseVehicle->Sample(v.uv)) };
 
 		switch (m_ShadingMode)
 		{
@@ -367,12 +350,6 @@ namespace dae
 		default:
 			return ((lambert * lightIntensity + specular) * lambertCosineLaw) + ambient;
 		}
-
-		//return (lambert * lambertCosineLaw * lightIntensity); // lambert final.
-		//return specular; // specular final.
-		//return ((lambert * lightIntensity) + specular) * lambertCosineLaw; // combined.
-		//return ColorRGB{1, 1, 1} * lambertCosineLaw;
-
 	}
 
 	float Software::GetLambertCosine(const Vector3& normal, const Vector3& lightDirection) const
@@ -422,6 +399,29 @@ namespace dae
 			m_CurrentCullingMode = Culling::Front;
 			break;
 		}
+	}
+
+	void Software::VisualizeDepthBuffer()
+	{
+		m_DepthBufferVisualized = !m_DepthBufferVisualized;
+		std::cout << (m_DepthBufferVisualized ? "Depth Buffer Visualize ON.\n" : "Depth Buffer Visualize OFF.\n");
+	}
+
+	void Software::ToggleNormalMap()
+	{
+		m_ToggleNormalMap = !m_ToggleNormalMap;
+		std::cout << (m_ToggleNormalMap ? "Normal Map ON.\n" : "Normal Map OFF.\n");
+	}
+
+	void Software::ToggleUniformBg()
+	{
+		m_UniformBg = !m_UniformBg;
+	}
+
+	void Software::ToggleBoundingBox()
+	{
+		m_ToggleBoundingBox = !m_ToggleBoundingBox;
+		std::cout << (m_ToggleBoundingBox ? "Bounding Box ON.\n" : "Bounding Box OFF.\n");
 	}
 
 	void Software::CycleShadingMode()

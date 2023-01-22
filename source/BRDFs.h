@@ -15,19 +15,18 @@ namespace dae
 		 */
 		static ColorRGB Lambert(float kd, const ColorRGB& cd)
 		{
-			ColorRGB lambert{ (cd * kd) / float(PI) };
+			const ColorRGB lambert{ (cd * kd) / static_cast<float>(PI) };
 			return lambert;
 		}
 
 		static ColorRGB Lambert(const ColorRGB& kd, const ColorRGB& cd)
 		{
-			// not sure.
-			ColorRGB lambert{ (cd * kd) / float(PI) };
+			const ColorRGB lambert{ (cd * kd) / static_cast<float>(PI) };
 			return lambert;
 		}
 
 		/**
-		 * \brief todo
+		 * \param specularColor
 		 * \param ks Specular Reflection Coefficient
 		 * \param exp Phong Exponent
 		 * \param l Incoming (incident) Light Direction
@@ -35,13 +34,12 @@ namespace dae
 		 * \param n Normal of the Surface
 		 * \return Phong Specular Color
 		 */
-		static ColorRGB Phong(const ColorRGB specularColor, float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
+		static ColorRGB Phong(const ColorRGB& specularColor, float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
-			Vector3 reflect{ Vector3::Reflect(l, n) };
+			const Vector3 reflect{ Vector3::Reflect(l, n) };
 			//Vector3 reflect{ l - (2 * (Vector3::Dot(n, l)) * n)};
-			float cosAlpha{ std::max(0.f, Vector3::Dot(reflect, v)) };
-			float phong{ ks * (pow(cosAlpha, exp)) };
-			//return ColorRGB(phong, phong, phong);
+			const float cosAlpha{ std::max(0.f, Vector3::Dot(reflect, v)) };
+			const float phong{ ks * (pow(cosAlpha, exp)) };
 			return specularColor * phong;
 		}
 

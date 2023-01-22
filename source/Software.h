@@ -8,7 +8,7 @@ struct SDL_Surface;
 
 namespace dae
 {
-	class Software
+	class Software final
 	{
 	public:
 
@@ -21,37 +21,14 @@ namespace dae
 		Software& operator=(Software&&) noexcept = delete;
 
 		void Render(const Camera& camera) const;
-		// addcull mode.
-
 		void CycleShadingMode();
-
 		void SetMesh(Mesh* pMesh);
 		void SetTextures(Texture* pDiffuse, Texture* pNormal, Texture* pGloss, Texture* pSpecular);
 		void CycleCullMode();
-
-		void VisualizeDepthBuffer()
-		{
-			m_DepthBufferVisualized = !m_DepthBufferVisualized;
-			std::cout << (m_DepthBufferVisualized ? "Depth Buffer Visualize ON.\n" : "Depth Buffer Visualize OFF.\n");
-		}
-
-		void ToggleNormalMap()
-		{
-			m_ToggleNormalMap = !m_ToggleNormalMap;
-			std::cout << (m_ToggleNormalMap ? "Normal Map ON.\n" : "Normal Map OFF.\n");
-		}
-
-		void ToggleUniformBg()
-		{
-			m_UniformBg = !m_UniformBg;
-			//std::cout << (m_UniformBg ? "Uniform background ON.\n" : "Uniform background OFF.\n");
-		}
-
-		void ToggleBoundingBox()
-		{
-			m_ToggleBoundingBox = !m_ToggleBoundingBox;
-			std::cout << (m_ToggleBoundingBox ? "Bounding Box ON.\n" : "Bounding Box OFF.\n");
-		}
+		void VisualizeDepthBuffer();
+		void ToggleNormalMap();
+		void ToggleUniformBg();
+		void ToggleBoundingBox();
 
 	private:
 
@@ -61,18 +38,18 @@ namespace dae
 		};
 
 		SDL_Window* m_pWindow{};
-
 		int m_Width{};
 		int m_Height{};
 
 		SDL_Surface* m_pFrontBuffer{ nullptr };
 		SDL_Surface* m_pBackBuffer{ nullptr };
 		uint32_t* m_pBackBufferPixels{};
-
 		float* m_pDepthBufferPixels{};
 
 		bool m_DepthBufferVisualized{ false };
 		bool m_UniformBg{ false };
+		bool m_ToggleNormalMap{ true };
+		bool m_ToggleBoundingBox{ false };
 
 		Mesh* m_pVehicleMesh{ nullptr };
 		Texture* m_pDiffuseVehicle{ nullptr };
@@ -83,12 +60,7 @@ namespace dae
 		ShadingModes m_ShadingMode{ ShadingModes::Combined };
 		Culling m_CurrentCullingMode{ Culling::Back };
 
-
-		bool m_ToggleNormalMap{ true };
-		bool m_ToggleBoundingBox{ false };
-
-
-		//
+		// Functions.
 
 		void VertexTransformationFunction(const std::vector<Mesh*>& mesh, const Camera& camera) const;
 		void PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2) const;
@@ -101,7 +73,6 @@ namespace dae
 		float Remap(float value, float oldRangeL, float oldRangeN, float newRangeL, float newRangeN) const;
 		ColorRGB PixelShading(const Vertex_Out& v) const;
 		float GetLambertCosine(const Vector3& normal, const Vector3& lightDirection) const;
-
 
 	};
 

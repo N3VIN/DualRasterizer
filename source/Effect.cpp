@@ -38,7 +38,6 @@ namespace dae
 		}
 
 		// Sampler States.
-
 		D3D11_SAMPLER_DESC descPoint{};
 		descPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		descPoint.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -110,32 +109,32 @@ namespace dae
 	}
 
 
-	ID3DX11Effect* Effect::GetEffect()
+	ID3DX11Effect* Effect::GetEffect() const
 	{
 		return m_pEffect;
 	}
 
-	ID3DX11EffectTechnique* Effect::GetTechnique()
+	ID3DX11EffectTechnique* Effect::GetTechnique() const
 	{
 		return m_pTechnique;
 	}
 
-	void Effect::SetMatWorldViewProjVariable(const Matrix& worldViewProjectionMatrix)
+	void Effect::SetMatWorldViewProjVariable(const Matrix& worldViewProjectionMatrix) const
 	{
 		m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&worldViewProjectionMatrix));
 	}
 
-	void Effect::SetMatWorldVariable(const Matrix& worldMatrix)
+	void Effect::SetMatWorldVariable(const Matrix& worldMatrix) const
 	{
 		m_pMatMatWorldVariable->SetMatrix(reinterpret_cast<const float*>(&worldMatrix));
 	}
 
-	void Effect::SetMatInvViewVariable(const Matrix& invViewMatrix)
+	void Effect::SetMatInvViewVariable(const Matrix& invViewMatrix) const
 	{
 		m_pMatInvViewVariable->SetMatrix(reinterpret_cast<const float*>(&invViewMatrix));
 	}
 
-	void Effect::SetEffectSamplerVariable(ID3D11SamplerState* samplerState)
+	void Effect::SetEffectSamplerVariable(ID3D11SamplerState* samplerState) const
 	{
 		HRESULT hr = m_pEffectSamplerVariable->SetSampler(0, samplerState);
 	}
@@ -225,5 +224,4 @@ namespace dae
 			break;
 		}
 	}
-
 }

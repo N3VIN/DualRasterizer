@@ -15,8 +15,7 @@ namespace dae
 		Camera(const Vector3& _origin, float _fovAngle):
 			origin{_origin},
 			fovAngle{_fovAngle}
-		{
-		}
+		{}
 
 		Vector3 origin{};
 		float fovAngle{45.f};
@@ -45,7 +44,7 @@ namespace dae
 			origin = _origin;
 			aspectRatio = _aspectRatio;
 
-			CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
+			CalculateProjectionMatrix();
 		}
 
 		void CalculateViewMatrix()
@@ -65,7 +64,6 @@ namespace dae
 			const float deltaTime = pTimer->GetElapsed();
 
 			//Camera Update Logic
-
 			//Keyboard Input
 			KeyboardMovement(deltaTime);
 
@@ -129,27 +127,14 @@ namespace dae
 			{
 				origin += up * velocity * deltaTime;
 			}
-
-			//// fov change.
-			//if (pKeyboardState[SDL_SCANCODE_KP_PLUS])
-			//{
-			//	degrees++;
-			//	updateFovAngle(degrees);
-			//}
-			//if (pKeyboardState[SDL_SCANCODE_KP_MINUS])
-			//{
-			//	degrees--;
-			//	updateFovAngle(degrees);
-
-			//}
 		}
 
 		void MouseMovement(float deltaTime)
 		{
 
 			int mouseX, mouseY;
-			float sensitivity{ 0.025f };
-			auto mouse = SDL_GetRelativeMouseState(&mouseX, &mouseY);
+			constexpr float sensitivity{ 0.025f };
+			const auto mouse = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 
 			if (mouse == SDL_BUTTON(3)) // rotate yaw and pitch.
 			{
@@ -180,6 +165,5 @@ namespace dae
 			forward.Normalize();
 
 		}
-
 	};
 }
