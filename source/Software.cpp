@@ -122,7 +122,7 @@ namespace dae
 
 	}
 
-	void Software::VertexTransformationFunction(const std::vector<Mesh*>& mesh, const Camera& camera)
+	void Software::VertexTransformationFunction(const std::vector<Mesh*>& mesh, const Camera& camera) const
 	{
 		for (auto& m : mesh)
 		{

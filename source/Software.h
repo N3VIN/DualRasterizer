@@ -90,7 +90,7 @@ namespace dae
 
 		//
 
-		static void VertexTransformationFunction(const std::vector<Mesh*>& mesh, const Camera& camera);
+		void VertexTransformationFunction(const std::vector<Mesh*>& mesh, const Camera& camera) const;
 		void PixelRenderLoop(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2) const;
 		float ZBufferValue(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;
 		float WInterpolated(const Vertex_Out& v0, const Vertex_Out& v1, const Vertex_Out& v2, const float w0, const float w1, const float w2) const;

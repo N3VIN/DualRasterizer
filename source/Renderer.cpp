@@ -19,6 +19,8 @@ namespace dae
 		m_pSoftware = new Software{ pWindow, width, height };
 		m_pHardware = new Hardware{ pWindow, width, height };
 
+		Keybindings();
+
 		const auto device = m_pHardware->GetDevice();
 
 		m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
@@ -194,5 +196,35 @@ namespace dae
 		{
 			m_pHardware->ToggleFireMesh();
 		}
+	}
+
+	void Renderer::Keybindings() const
+	{
+		std::cout << "[Key Bindings - SHARED]\n";
+		std::cout << "[F1] Switch Render Mode (Hardware / Software).\n";
+		std::cout << "[F2] Toggle Vehicle Rotation (ON / OFF).\n";
+		std::cout << "[F9] Cycle CullMode (Back / None / Front).\n";
+		std::cout << "[F10] Toggle Uniform ClearColor (ON / OFF).\n";
+		std::cout << "[F11] Toggle Print FPS (ON / OFF).\n";
+		std::cout << "\n";
+
+		std::cout << "[Key Bindings - HARDWARE]\n";
+		std::cout << "[F3] Toggle Fire Mesh (ON / OFF).\n";
+		std::cout << "[F4] Cycle Filtering Mode (Point / Linear / Anisotropic).\n";
+		std::cout << "\n";
+
+		std::cout << "[Key Bindings - SOFTWARE]\n";
+		std::cout << "[F5] Switch Shading Mode (Combined / Observed Area / Diffuse / Specular).\n";
+		std::cout << "[F6] Toggle NormalMap (ON / OFF).\n";
+		std::cout << "[F7] Toggle Depth Buffer Visualization (ON / OFF).\n";
+		std::cout << "[F8] Toggle Bounding Box Visualization (ON / OFF).\n";
+		std::cout << "\n";
+
+		std::cout << "[Features Added]\n";
+		std::cout << "Basic Multithreading.\n";
+		std::cout << "[E] World Up.\n";
+		std::cout << "[Q] World Down.\n";
+		std::cout << "\n";
+
 	}
 }

@@ -73,6 +73,6 @@ namespace dae
 		bool m_ToggleRenderModeSoftware{ false };
 		bool m_ToggleRotation{ true };
 
-
+		void Keybindings() const;
 	};
 }
